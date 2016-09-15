@@ -10,6 +10,9 @@
     @endif
 
     <div class="pull-right">
-        <small class="text-component-{{ $component->status }} {{ $component->status_color }}" data-toggle="tooltip" title="{{ trans('cachet.components.last_updated', ['timestamp' => $component->updated_at_formatted]) }}">{{ $component->human_status }}</small>
+        <small class="text-component-{{ $component->status }} {{ $component->status_color }}" data-toggle="tooltip" data-html="true"
+               title="{{ trans('cachet.components.last_updated', ['timestamp' => $component->updated_at_formatted]) }}@if($component->incidents()->visible()->first())<hr/>{{ trans('cachet.components.last_incident', ['name'=> $component->incidents()->visible()->first()->name]) }}@endif">
+            {{ $component->human_status }}
+        </small>
     </div>
 </li>
