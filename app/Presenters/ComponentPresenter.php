@@ -67,6 +67,16 @@ class ComponentPresenter extends BasePresenter implements Arrayable
     }
 
     /**
+     * Present formatted date time.
+     *
+     * @return string
+     */
+    public function updated_at_iso()
+    {
+        return app(DateFactory::class)->make($this->wrappedObject->updated_at)->toISO8601String();
+    }
+
+    /**
      * Convert the presenter instance to an array.
      *
      * @return string[]

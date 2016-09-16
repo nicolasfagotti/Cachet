@@ -87,6 +87,19 @@ body.status-page {
         font-weight: 600;
     }
 
+    .component-status {
+        position: absolute;
+        top: 8px;
+        right: 15px;
+        text-align: right;
+
+        .date {
+            display: block;
+            font-size: 0.6em;
+            color: #6C6C6C;
+        }
+    }
+
     .timeline {
         .content-wrapper {
             margin-top: 40px;
