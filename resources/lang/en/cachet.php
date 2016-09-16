@@ -13,6 +13,7 @@ return [
     // Components
     'components' => [
         'last_updated' => 'Last updated :timestamp',
+        'last_incident' => 'Last incident<br/><i>:name</i>',
         'status'       => [
             1 => 'Operational',
             2 => 'Performance Issues',
