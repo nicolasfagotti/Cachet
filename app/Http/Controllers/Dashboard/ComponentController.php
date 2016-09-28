@@ -133,6 +133,7 @@ class ComponentController extends Controller
                 $componentData['description'],
                 $componentData['status'],
                 $componentData['link'],
+                $componentData['internal_link'],
                 $componentData['order'],
                 $componentData['group_id'],
                 $componentData['enabled']
@@ -186,6 +187,7 @@ class ComponentController extends Controller
                 $componentData['description'],
                 $componentData['status'],
                 $componentData['link'],
+                $componentData['internal_link'],
                 $componentData['order'],
                 $componentData['group_id'],
                 $componentData['enabled']

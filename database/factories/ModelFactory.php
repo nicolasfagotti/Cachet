@@ -22,11 +22,12 @@ use Carbon\Carbon;
 
 $factory->define(Component::class, function ($faker) {
     return [
-        'name'        => $faker->sentence(),
-        'description' => $faker->paragraph(),
-        'link'        => $faker->url(),
-        'status'      => random_int(1, 4),
-        'order'       => 0,
+        'name'          => $faker->sentence(),
+        'description'   => $faker->paragraph(),
+        'link'          => $faker->url(),
+        'internal_link' => $faker->url(),
+        'status'        => random_int(1, 4),
+        'order'         => 0,
     ];
 });
 

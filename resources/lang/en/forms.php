@@ -67,14 +67,15 @@ return [
 
     // Components form fields
     'components' => [
-        'name'        => 'Name',
-        'status'      => 'Status',
-        'group'       => 'Group',
-        'description' => 'Description',
-        'link'        => 'Link',
-        'tags'        => 'Tags',
-        'tags-help'   => 'Comma separated.',
-        'enabled'     => 'Component enabled?',
+        'name'          => 'Name',
+        'status'        => 'Status',
+        'group'         => 'Group',
+        'description'   => 'Description',
+        'link'          => 'Link',
+        'internal_link' => 'Internal Link',
+        'tags'          => 'Tags',
+        'tags-help'     => 'Comma separated.',
+        'enabled'       => 'Component enabled?',
 
         'groups' => [
             'name'               => 'Name',

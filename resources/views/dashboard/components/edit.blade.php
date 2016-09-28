@@ -52,6 +52,10 @@
                         <input type="text" name="component[link]" class="form-control" value="{{ $component->link }}">
                     </div>
                     <div class="form-group">
+                        <label>{{ trans('forms.components.internal_link') }}</label>
+                        <input type="text" name="component[internal_link]" class="form-control" value="{{ $component->internal_link }}">
+                    </div>
+                    <div class="form-group">
                         <label>{{ trans('forms.components.tags') }}</label>
                         <input name="component[tags]" class="form-control" value="{{ $component->tagsList }}">
                         <span class="help-block">{{ trans('forms.components.tags-help') }}</span>

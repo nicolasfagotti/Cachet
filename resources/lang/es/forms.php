@@ -59,14 +59,15 @@ return [
 
     // Components form fields
     'components' => [
-        'name'        => 'Nombre',
-        'status'      => 'Estatus',
-        'group'       => 'Grupo',
-        'description' => 'Descripción',
-        'link'        => 'Enlace',
-        'tags'        => 'Etiquetas',
-        'tags-help'   => 'Separado por comas.',
-        'enabled'     => '¿Componente habilitado?',
+        'name'          => 'Nombre',
+        'status'        => 'Estatus',
+        'group'         => 'Grupo',
+        'description'   => 'Descripción',
+        'link'          => 'Enlace',
+        'internal_link' => 'Enlace interno',
+        'tags'          => 'Etiquetas',
+        'tags-help'     => 'Separado por comas.',
+        'enabled'       => '¿Componente habilitado?',
 
         'groups' => [
             'name'               => 'Nombre',

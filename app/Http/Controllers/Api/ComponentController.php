@@ -75,6 +75,7 @@ class ComponentController extends AbstractApiController
                 Binput::get('description'),
                 Binput::get('status'),
                 Binput::get('link'),
+                Binput::get('internal_link'),
                 Binput::get('order'),
                 Binput::get('group_id'),
                 (bool) Binput::get('enabled', true)
@@ -116,6 +117,7 @@ class ComponentController extends AbstractApiController
                 Binput::get('description'),
                 Binput::get('status'),
                 Binput::get('link'),
+                Binput::get('internal_link'),
                 Binput::get('order'),
                 Binput::get('group_id'),
                 (bool) Binput::get('enabled', true)

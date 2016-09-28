@@ -29,19 +29,21 @@ class AddComponentCommandTest extends AbstractTestCase
     protected function getObjectAndParams()
     {
         $params = [
-            'name'        => 'Test',
-            'description' => 'Foo',
-            'status'      => 1,
-            'link'        => 'https://cachethq.io',
-            'order'       => 0,
-            'group_id'    => 0,
-            'enabled'     => true,
+            'name'          => 'Test',
+            'description'   => 'Foo',
+            'status'        => 1,
+            'link'          => 'https://cachethq.io',
+            'internal_link' => 'https://cachethq.io',
+            'order'         => 0,
+            'group_id'      => 0,
+            'enabled'       => true,
         ];
         $object = new AddComponentCommand(
             $params['name'],
             $params['description'],
             $params['status'],
             $params['link'],
+            $params['internal_link'],
             $params['order'],
             $params['group_id'],
             $params['enabled']

@@ -30,11 +30,12 @@ class Component extends Model implements HasPresenter
      * @var mixed[]
      */
     protected $attributes = [
-        'order'       => 0,
-        'group_id'    => 0,
-        'description' => '',
-        'link'        => '',
-        'enabled'     => true,
+        'order'         => 0,
+        'group_id'      => 0,
+        'description'   => '',
+        'link'          => '',
+        'internal_link' => '',
+        'enabled'       => true,
     ];
 
     /**
@@ -43,14 +44,15 @@ class Component extends Model implements HasPresenter
      * @var string[]
      */
     protected $casts = [
-        'name'        => 'string',
-        'description' => 'string',
-        'status'      => 'int',
-        'order'       => 'int',
-        'link'        => 'string',
-        'group_id'    => 'int',
-        'enabled'     => 'bool',
-        'deleted_at'  => 'date',
+        'name'          => 'string',
+        'description'   => 'string',
+        'status'        => 'int',
+        'order'         => 'int',
+        'link'          => 'string',
+        'internal_link' => 'string',
+        'group_id'      => 'int',
+        'enabled'       => 'bool',
+        'deleted_at'    => 'date',
     ];
 
     /**
@@ -64,6 +66,7 @@ class Component extends Model implements HasPresenter
         'status',
         'tags',
         'link',
+        'internal_link',
         'order',
         'group_id',
         'enabled',
