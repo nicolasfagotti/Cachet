@@ -53,6 +53,8 @@
                     </div>
                     <div class="form-group">
                         <label>{{ trans('forms.components.internal_link') }}</label>
+                        <i class="ion ion-ios-help-outline help-icon" data-toggle="tooltip" data-title="{{ trans('forms.components.int_link_help') }}" data-container="body" data-html="true"></i>
+                        <span class="pull-right"><a href="{{ URL::to('/') }}/atlas" target="_blank">Launch Atlas Query Editor</a></span>
                         <input type="text" name="component[internal_link]" class="form-control">
                     </div>
                     <div class="form-group">
