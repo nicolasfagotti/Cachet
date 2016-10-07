@@ -15,6 +15,7 @@ use CachetHQ\Cachet\Models\Component;
 use CachetHQ\Cachet\Models\ComponentGroup;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * This is the components composer.
@@ -52,11 +53,29 @@ class ComponentsComposer
      */
     public function compose(View $view)
     {
-        $componentGroups = $this->getVisibleGroupedComponents();
-        $ungroupedComponents = Component::ungrouped()->get();
+        // Get the component group if it's defined.
+        $viewdata = $view->getData();
+        $componentGroup = $viewdata['componentGroup'];
 
-        $view->withComponentGroups($componentGroups)
-            ->withUngroupedComponents($ungroupedComponents);
+        // Component & Component Group lists.
+        $usedComponentGroups = Component::enabled()->where('group_id', '>', 0)->groupBy('group_id')->pluck('group_id');
+        $allComponentGroups = ComponentGroup::whereIn('id', $usedComponentGroups)->orderBy('order')->get();
+        if ($componentGroup->exists) {
+            $componentGroups = ComponentGroup::where('id', $componentGroup->id)->orderBy('order')->get();
+
+            $view->withAllComponentGroups($allComponentGroups)
+                 ->withComponentGroups($componentGroups)
+                 ->withUngroupedComponents(new Collection())
+                 ->withComponentGroupSelected($componentGroup);
+
+        } else {
+            $ungroupedComponents = Component::ungrouped()->get();
+
+            $view->withAllComponentGroups($allComponentGroups)
+                 ->withComponentGroups($allComponentGroups)
+                 ->withUngroupedComponents($ungroupedComponents)
+                 ->withComponentGroupSelected(null);
+        }
     }
 
     /**

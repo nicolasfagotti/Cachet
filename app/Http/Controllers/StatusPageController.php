@@ -15,6 +15,7 @@ use AltThree\Badger\Facades\Badger;
 use CachetHQ\Cachet\Dates\DateFactory;
 use CachetHQ\Cachet\Http\Controllers\Api\AbstractApiController;
 use CachetHQ\Cachet\Models\Component;
+use CachetHQ\Cachet\Models\ComponentGroup;
 use CachetHQ\Cachet\Models\Incident;
 use CachetHQ\Cachet\Models\Metric;
 use CachetHQ\Cachet\Repositories\Metric\MetricRepository;
@@ -50,9 +51,10 @@ class StatusPageController extends AbstractApiController
     /**
      * Displays the status page.
      *
+     * @param ComponentGroup $componentGroup
      * @return \Illuminate\View\View
      */
-    public function showIndex()
+    public function showIndex(ComponentGroup $componentGroup)
     {
         $today = Date::now();
         $startDate = Date::now();
@@ -82,10 +84,16 @@ class StatusPageController extends AbstractApiController
 
         $incidentVisibility = Auth::check() ? 0 : 1;
 
-        $allIncidents = Incident::notScheduled()->where('visible', '>=', $incidentVisibility)->whereBetween('created_at', [
+        // Find all the visible incidents, taking into account if the component group is defined and the day limits.
+        $allIncidentsQuery = Incident::notScheduled();
+        if ($componentGroup->exists) {
+            $allIncidentsQuery->whereIn('component_id', $componentGroup->components()->pluck('id'));
+        }
+        $allIncidentsQuery->where('visible', '>=', $incidentVisibility)->whereBetween('created_at', [
             $startDate->copy()->subDays($daysToShow)->format('Y-m-d').' 00:00:00',
             $startDate->format('Y-m-d').' 23:59:59',
-        ])->orderBy('scheduled_at', 'desc')->orderBy('created_at', 'desc')->get()->load('updates')->groupBy(function (Incident $incident) {
+        ])->orderBy('scheduled_at', 'desc')->orderBy('created_at', 'desc');
+        $allIncidents = $allIncidentsQuery->get()->load('updates')->groupBy(function (Incident $incident) {
             return app(DateFactory::class)->make($incident->is_scheduled ? $incident->scheduled_at : $incident->created_at)->toDateString();
         });
 
@@ -106,6 +114,7 @@ class StatusPageController extends AbstractApiController
         }, SORT_REGULAR, true)->all();
 
         return View::make('index')
+            ->with('componentGroup', $componentGroup)
             ->withDaysToShow($daysToShow)
             ->withAllIncidents($allIncidents)
             ->withCanPageForward((bool) $today->gt($startDate))
