@@ -78,6 +78,7 @@ $factory->define(Metric::class, function ($faker) {
         'calc_type'     => $faker->boolean(),
         'display_chart' => $faker->boolean(),
         'threshold'     => 5,
+        'internal_link' => $faker->url(),
     ];
 });
 

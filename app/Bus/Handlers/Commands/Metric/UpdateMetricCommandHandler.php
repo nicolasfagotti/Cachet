@@ -54,6 +54,7 @@ class UpdateMetricCommandHandler
             'places'        => $command->places,
             'default_view'  => $command->default_view,
             'threshold'     => $command->threshold,
+            'internal_link' => $command->internal_link,
             'order'         => $command->order,
         ];
 

@@ -111,6 +111,7 @@ return [
         'suffix'           => 'Suffix',
         'description'      => 'Description',
         'description-help' => 'You may also use Markdown.',
+        'internal_link'    => 'Internal Link',
         'display-chart'    => 'Display chart on status page?',
         'default-value'    => 'Default value',
         'calc_type'        => 'Calculation of metrics',
