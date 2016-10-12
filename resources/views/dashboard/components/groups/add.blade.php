@@ -19,7 +19,7 @@
                 <fieldset>
                     <div class="form-group">
                         <label>{{ trans('forms.components.groups.name') }}</label>
-                        <input type="text" class="form-control" name="name" id="group-name" required>
+                        <input type="text" class="form-control" name="name" id="group-name" required placeholder="{{ trans('forms.components.groups.name') }}">
                     </div>
                     <div class="form-group">
                         <label>{{ trans('forms.components.groups.collapsing') }}</label>
@@ -27,6 +27,13 @@
                             <option value="0">{{ trans('forms.components.groups.visible') }}</option>
                             <option value="1">{{ trans('forms.components.groups.collapsed') }}</option>
                             <option value="2">{{ trans('forms.components.groups.collapsed_incident') }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{{ trans('forms.components.groups.visibility') }}</label>
+                        <select name="collapsed" class="form-control" required>
+                            <option value="0">{{ trans('forms.components.groups.visibility_authenticated') }}</option>
+                            <option value="1">{{ trans('forms.components.groups.visibility_public') }}</option>
                         </select>
                     </div>
                 </fieldset>

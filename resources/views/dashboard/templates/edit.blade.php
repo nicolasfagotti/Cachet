@@ -42,16 +42,16 @@
                 </div>
                 @endif
 
-                <form class='form-vertical' name='IncidentTemplateForm' role='form' method='POST'>
+                <form class="form-vertical" name="IncidentTemplateForm" role="form" method="POST">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <fieldset>
                         <div class="form-group">
                             <label for="template-name">{{ trans('forms.incidents.templates.name') }}</label>
-                            <input type="text" class="form-control" name="template[name]" id="template-name" required value="{{ $template->name }}">
+                            <input type="text" class="form-control" name="template[name]" id="template-name" required value="{{ $template->name }}" placeholder="{{ trans('forms.incidents.templates.name') }}">
                         </div>
                         <div class="form-group">
                             <label>{{ trans('forms.incidents.templates.template') }}</label>
-                            <textarea name="template[template]" id="cm-editor" class="form-control" rows="8">{{ $template->template }}</textarea>
+                            <textarea name="template[template]" id="cm-editor" class="form-control" rows="8" placeholder="{{ trans('forms.incidents.templates.template') }}">{{ $template->template }}</textarea>
                             <span class="help-block">{!! trans('forms.incidents.templates.twig') !!}</span>
                         </div>
                     </fieldset>

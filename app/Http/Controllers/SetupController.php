@@ -25,6 +25,13 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
 
+/**
+ * This is the setup controller.
+ *
+ * @author James Brooks <james@alt-three.com>
+ * @author Graham Campbell <graham@alt-three.com>
+ * @author Joseph Cohen <joe@alt-three.com>
+ */
 class SetupController extends Controller
 {
     /**
@@ -58,6 +65,20 @@ class SetupController extends Controller
     ];
 
     /**
+     * Array of queue drivers.
+     *
+     * @var string[]
+     */
+    protected $queueDrivers = [
+        'null'       => 'None',
+        'sync'       => 'Synchronous',
+        'database'   => 'Database',
+        'beanstalkd' => 'Beanstalk',
+        'sqs'        => 'Amazon SQS',
+        'redis'      => 'Redis',
+    ];
+
+    /**
      * Array of step1 rules.
      *
      * @var string[]
@@ -88,6 +109,7 @@ class SetupController extends Controller
         $this->rulesStep1 = [
             'env.cache_driver'   => 'required|in:'.implode(',', array_keys($this->cacheDrivers)),
             'env.session_driver' => 'required|in:'.implode(',', array_keys($this->cacheDrivers)),
+            'env.queue_driver'   => 'required|in:'.implode(',', array_keys($this->queueDrivers)),
             'env.mail_driver'    => 'required|in:'.implode(',', array_keys($this->mailDrivers)),
         ];
 
@@ -125,12 +147,38 @@ class SetupController extends Controller
             }
         }
 
-        return View::make('setup')
+        // Since .env may already be configured, we should show that data!
+        $cacheConfig = [
+            'driver' => Config::get('cache.default'),
+        ];
+
+        $sessionConfig = [
+            'driver' => Config::get('session.driver'),
+        ];
+
+        $queueConfig = [
+            'driver' => Config::get('queue.default'),
+        ];
+
+        $mailConfig = [
+            'driver'   => Config::get('mail.driver'),
+            'host'     => Config::get('mail.host'),
+            'from'     => Config::get('mail.from'),
+            'username' => Config::get('mail.username'),
+            'password' => Config::get('mail.password'),
+        ];
+
+        return View::make('setup.index')
             ->withPageTitle(trans('setup.setup'))
             ->withCacheDrivers($this->cacheDrivers)
+            ->withQueueDrivers($this->queueDrivers)
             ->withMailDrivers($this->mailDrivers)
             ->withUserLanguage($userLanguage)
-            ->withAppUrl(Request::root());
+            ->withAppUrl(Request::root())
+            ->withCacheConfig($cacheConfig)
+            ->withSessionConfig($sessionConfig)
+            ->withQueueConfig($queueConfig)
+            ->withMailConfig($mailConfig);
     }
 
     /**
@@ -145,11 +193,11 @@ class SetupController extends Controller
         $v = Validator::make($postData, $this->rulesStep1);
 
         $v->sometimes('env.mail_host', 'required', function ($input) {
-            return $input->mail_driver === 'smtp';
+            return $input->env['mail_driver'] === 'smtp';
         });
 
         $v->sometimes(['env.mail_address', 'env.mail_username', 'env.mail_password'], 'required', function ($input) {
-            return $input->mail_driver !== 'log';
+            return $input->env['mail_driver'] !== 'log';
         });
 
         if ($v->passes()) {

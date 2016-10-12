@@ -27,6 +27,12 @@
                     <label class="sr-only">{{ trans('forms.login.password') }}</label>
                     <input autocomplete="off" class="form-control login-input" placeholder="{{ trans('forms.login.password') }}" required="required" name="password" type="password" value="">
                 </div>
+                <div class="checkbox">
+                    <input type="hidden" name="remember_me" value="0">
+                    <label>
+                        <input name="remember_me" type="checkbox" value="1"> {{ trans('forms.login.remember_me') }}
+                    </label>
+                </div>
                 <div class="form-group">
                     <div class="row">
                         <div class="col-xs-2">
@@ -36,7 +42,7 @@
                                 </span>
                             </a>
                         </div>
-                        <div class="col-xs-10">
+                        <div class="col-xs-9 col-xs-push-1">
                             <button type="submit" class="btn btn-success btn-lg btn-block btn-trans">{{ trans('dashboard.login.login') }}</button>
                         </div>
                     </div>
