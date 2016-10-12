@@ -51,6 +51,10 @@
                         </div>
                     @endif
                     <div class="form-group">
+                        <label>{{ trans('forms.metrics.internal_link') }}</label>
+                        <input type="text" name="metric[internal_link]" class="form-control" placeholder="{{ trans('forms.metrics.internal_link') }}">
+                    </div>
+                    <div class="form-group">
                         <label>{{ trans('forms.metrics.calc_type') }}</label>
                         <select name="metric[calc_type]" class="form-control" required>
                             <option value="0" selected>{{ trans('forms.metrics.type_sum') }}</option>

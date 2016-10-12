@@ -49,6 +49,7 @@ class Metric extends Model implements HasPresenter
         'places'        => 2,
         'default_view'  => 1,
         'threshold'     => 5,
+        'internal_link' => '',
         'component_id'  => 0,
         'order'         => 0,
     ];
@@ -66,6 +67,7 @@ class Metric extends Model implements HasPresenter
         'places'        => 'int',
         'default_view'  => 'int',
         'threshold'     => 'int',
+        'internal_link' => 'string',
         'component_id'  => 'int',
         'order'         => 'int',
     ];
@@ -85,6 +87,7 @@ class Metric extends Model implements HasPresenter
         'places',
         'default_view',
         'threshold',
+        'internal_link',
         'component_id',
         'order',
     ];
@@ -103,6 +106,7 @@ class Metric extends Model implements HasPresenter
         'default_view'  => 'numeric|between:0,3',
         'threshold'     => 'numeric|between:0,10',
         'threshold'     => 'int',
+        'internal_link' => 'url',
         'component_id'  => 'int',
     ];
 

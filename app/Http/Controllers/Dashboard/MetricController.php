@@ -85,6 +85,7 @@ class MetricController extends Controller
                 $metricData['places'],
                 $metricData['default_view'],
                 $metricData['threshold'],
+                $metricData['internal_link'],
                 $metricData['component_id']
             ));
         } catch (ValidationException $e) {
@@ -158,7 +159,8 @@ class MetricController extends Controller
                 Binput::get('display_chart', null, false),
                 Binput::get('places', null, false),
                 Binput::get('default_view', null, false),
-                Binput::get('threshold', null, false)
+                Binput::get('threshold', null, false),
+                Binput::get('internal_link', null, false)
             ));
         } catch (ValidationException $e) {
             return Redirect::route('dashboard.metrics.edit', ['id' => $metric->id])

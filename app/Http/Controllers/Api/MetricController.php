@@ -86,6 +86,7 @@ class MetricController extends AbstractApiController
                 Binput::get('places', 2),
                 Binput::get('default_view', Binput::get('view', 1)),
                 Binput::get('threshold', 5),
+                Binput::get('internal_link', ''),
                 Binput::get('component_id', 0),
                 Binput::get('order', 0)
             ));
@@ -117,6 +118,7 @@ class MetricController extends AbstractApiController
                 Binput::get('places'),
                 Binput::get('default_view', Binput::get('view')),
                 Binput::get('threshold'),
+                Binput::get('internal_link'),
                 Binput::get('component_id'),
                 Binput::get('order')
             ));

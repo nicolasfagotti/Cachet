@@ -86,6 +86,13 @@ final class UpdateMetricCommand
     public $threshold;
 
     /**
+     * The internal link associated to the metric.
+     *
+     * @var string
+     */
+    public $internal_link;
+
+    /**
      * The component id the metric belongs to.
      *
      * @var int
@@ -115,6 +122,7 @@ final class UpdateMetricCommand
         'places'        => 'numeric|between:0,4',
         'default_view'  => 'numeric|between:0,4',
         'threshold'     => 'numeric|between:0,10',
+        'link'          => 'url',
         'component_id'  => 'int',
         'order'         => 'int',
     ];
@@ -132,12 +140,13 @@ final class UpdateMetricCommand
      * @param int                            $places
      * @param int                            $default_view
      * @param int                            $threshold
+     * @param string                         $internal_link
      * @param int|null                       $component_id
      * @param int|null                       $order
      *
      * @return void
      */
-    public function __construct(Metric $metric, $name, $suffix, $description, $default_value, $calc_type, $display_chart, $places, $default_view, $threshold, $component_id = null, $order = null)
+    public function __construct(Metric $metric, $name, $suffix, $description, $default_value, $calc_type, $display_chart, $places, $default_view, $threshold, $internal_link, $component_id = null, $order = null)
     {
         $this->metric = $metric;
         $this->name = $name;
@@ -149,6 +158,7 @@ final class UpdateMetricCommand
         $this->places = $places;
         $this->default_view = $default_view;
         $this->threshold = $threshold;
+        $this->internal_link = $internal_link;
         $this->component_id = $component_id;
         $this->order = $order;
     }
