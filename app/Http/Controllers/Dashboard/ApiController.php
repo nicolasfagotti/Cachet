@@ -42,6 +42,7 @@ class ApiController extends AbstractApiController
                 $component->description,
                 Binput::get('status'),
                 $component->link,
+                $component->internal_link,
                 $component->order,
                 $component->group_id,
                 $component->enabled
@@ -72,6 +73,7 @@ class ApiController extends AbstractApiController
                     $component->description,
                     $component->status,
                     $component->link,
+                    $component->internal_link,
                     $order + 1,
                     $component->group_id,
                     $component->enabled
