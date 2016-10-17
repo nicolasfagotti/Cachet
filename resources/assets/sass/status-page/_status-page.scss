@@ -276,6 +276,14 @@ body.status-page {
                 line-height: 1.3em;
             }
 
+            i.icon {
+                font-size: 21px;
+                line-height: 24px;
+                text-align: center;
+                display: inline-block;
+                min-width: 20px;
+            }
+
             &.group-name {
                 background-color: $cachet_gray_light;
                 padding: {
@@ -387,6 +395,11 @@ body.status-page {
     // Individual section styling.
     .section-timeline, .section-components, .section-metrics, .section-scheduled {
         margin-top: 40px;
+    }
+
+    .section-filters {
+        padding-bottom: 10px;
+        text-align: right;
     }
 
     .navbar-custom {

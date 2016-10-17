@@ -13,10 +13,12 @@ namespace CachetHQ\Cachet\Composers\Modules;
 
 use CachetHQ\Cachet\Models\Component;
 use CachetHQ\Cachet\Models\ComponentGroup;
+use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
- * This is the status page composer.
+ * This is the components composer.
  *
  * @author James Brooks <james@alt-three.com>
  * @author Connor S. Parks <connor@connorvg.tv>
@@ -24,7 +26,26 @@ use Illuminate\Contracts\View\View;
 class ComponentsComposer
 {
     /**
-     * Index page view composer.
+     * The user session object.
+     *
+     * @var \Illuminate\Contracts\Auth\Guard
+     */
+    protected $guard;
+
+    /**
+     * Creates a new components composer instance.
+     *
+     * @param \Illuminate\Contracts\Auth\Guard $guard
+     *
+     * @return void
+     */
+    public function __construct(Guard $guard)
+    {
+        $this->guard = $guard;
+    }
+
+    /**
+     * Bind data to the view.
      *
      * @param \Illuminate\Contracts\View\View $view
      *
@@ -32,12 +53,51 @@ class ComponentsComposer
      */
     public function compose(View $view)
     {
-        // Component & Component Group lists.
-        $usedComponentGroups = Component::enabled()->where('group_id', '>', 0)->groupBy('group_id')->pluck('group_id');
-        $componentGroups = ComponentGroup::whereIn('id', $usedComponentGroups)->orderBy('order')->get();
-        $ungroupedComponents = Component::enabled()->where('group_id', 0)->orderBy('order')->orderBy('created_at')->get();
+        // Get the component group if it's defined.
+        $viewdata = $view->getData();
+        $componentGroup = $viewdata['componentGroup'];
 
-        $view->withComponentGroups($componentGroups)
-            ->withUngroupedComponents($ungroupedComponents);
+        // Component & Component Group lists.
+        $allComponentGroups = $this->getVisibleGroupedComponents();
+        if ($componentGroup->exists) {
+            $componentGroups = $this->getVisibleGroupedComponents($componentGroup->id);
+
+            $view->withAllComponentGroups($allComponentGroups)
+                 ->withComponentGroups($componentGroups)
+                 ->withUngroupedComponents(new Collection())
+                 ->withComponentGroupSelected($componentGroup);
+        } else {
+            $ungroupedComponents = Component::ungrouped()->get();
+
+            $view->withAllComponentGroups($allComponentGroups)
+                 ->withComponentGroups($allComponentGroups)
+                 ->withUngroupedComponents($ungroupedComponents)
+                 ->withComponentGroupSelected(null);
+        }
+    }
+
+    /**
+     * Get visible grouped components.
+     *
+     * @param int|null $componentGroupId
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function getVisibleGroupedComponents($componentGroupId = null)
+    {
+        if ($componentGroupId) {
+            $componentGroupsBuilder = ComponentGroup::where('id', $componentGroupId);
+        } else {
+            $componentGroupsBuilder = ComponentGroup::query();
+        }
+
+        if (!$this->guard->check()) {
+            $componentGroupsBuilder->visible();
+        }
+
+        $usedComponentGroups = Component::grouped()->pluck('group_id');
+
+        return $componentGroupsBuilder->used($usedComponentGroups)
+            ->get();
     }
 }
