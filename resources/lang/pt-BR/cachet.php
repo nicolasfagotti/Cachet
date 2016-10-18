@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Última atualização :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => 'Operacional',
             2 => 'Problemas de performance',
             3 => 'Indisponibilidade parcial',

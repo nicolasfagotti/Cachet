@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Last updated :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => 'Működik',
             2 => 'Teljesítmény problémák',
             3 => 'Részleges leállás',

@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => 'آخرین بروز رسانی :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => 'عملیاتی',
             2 => 'مسائل مربوط به عملکرد',
             3 => 'قطعی جزیی',

@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Sidst opdateret :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => 'Normal',
             2 => 'Hastighedsproblemer',
             3 => 'Nogen udfald',
