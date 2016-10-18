@@ -29,6 +29,7 @@ class ComponentPresenter extends BasePresenter implements Arrayable
     public function status_color()
     {
         switch ($this->wrappedObject->status) {
+            case 0: return 'greys';
             case 1: return 'greens';
             case 2: return 'blues';
             case 3: return 'yellows';
