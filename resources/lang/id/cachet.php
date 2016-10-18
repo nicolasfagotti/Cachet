@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Last updated :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => 'Operasional',
             2 => 'Masalah Kinerja',
             3 => 'Gagal Sebagian',

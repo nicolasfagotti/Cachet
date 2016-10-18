@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Последнее обновление :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => 'Работает',
             2 => 'Падение производительности',
             3 => 'Перебои в работе',

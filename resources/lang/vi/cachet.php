@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Lần cập nhật cuối :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => 'Hoạt động',
             2 => 'Vấn đề hiệu suất',
             3 => 'Ngưng hoạt động một phần',

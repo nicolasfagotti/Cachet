@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Last updated :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => '정상',
             2 => '성능 이슈',
             3 => '부분 중단',

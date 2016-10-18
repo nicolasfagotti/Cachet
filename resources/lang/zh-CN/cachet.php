@@ -14,6 +14,7 @@ return [
     'components' => [
         'last_updated' => '最后更新 :timestamp',
         'status'       => [
+            0 => 'No Data Available',
             1 => '运行正常',
             2 => '负载较高',
             3 => 'Partial Outage',
