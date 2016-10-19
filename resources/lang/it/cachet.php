@@ -14,7 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Ultimo aggiornamento :timestamp',
         'status'       => [
-            0 => 'No Data Available',
+            0 => 'Unknown',
             1 => 'Operativo',
             2 => 'Problemi sulle prestazioni',
             3 => 'Disservizio parziale',

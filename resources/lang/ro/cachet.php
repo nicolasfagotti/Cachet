@@ -14,7 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Last updated :timestamp',
         'status'       => [
-            0 => 'No Data Available',
+            0 => 'Unknown',
             1 => 'Operaţional',
             2 => 'Probleme de performanţă',
             3 => 'Ȋntrerupere parțială',

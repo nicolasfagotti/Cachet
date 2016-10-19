@@ -14,7 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Son Güncelleme: zaman tipi',
         'status'       => [
-            0 => 'No Data Available',
+            0 => 'Unknown',
             1 => 'Çalışıyor',
             2 => 'Performans Problemleri',
             3 => 'Kısmi Kesinti',
