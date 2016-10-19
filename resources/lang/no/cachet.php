@@ -14,7 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Sist oppdatert :timestamp',
         'status'       => [
-            0 => 'No Data Available',
+            0 => 'Unknown',
             1 => 'Ingen problemer',
             2 => 'Ytelsesproblemer',
             3 => 'Delvis brudd',

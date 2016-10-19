@@ -14,7 +14,7 @@ return [
     'components' => [
         'last_updated' => 'Last updated :timestamp',
         'status'       => [
-            0 => 'No Data Available',
+            0 => 'Unknown',
             1 => 'Λειτουργικό',
             2 => 'Προβλήματα επιδόσης',
             3 => 'Μερική Διακοπή',
