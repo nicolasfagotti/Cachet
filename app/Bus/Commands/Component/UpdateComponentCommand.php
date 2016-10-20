@@ -86,7 +86,7 @@ final class UpdateComponentCommand
     public $rules = [
         'name'          => 'string',
         'description'   => 'string',
-        'status'        => 'int|min:1|max:4',
+        'status'        => 'int|min:0|max:4',
         'link'          => 'url',
         'internal_link' => 'url',
         'order'         => 'int',

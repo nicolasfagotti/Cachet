@@ -14,7 +14,6 @@ return [
     'components' => [
         'last_updated' => 'Viimeksi päivitetty :timestamp',
         'status'       => [
-            0 => 'Unknown',
             1 => 'Toiminnassa',
             2 => 'Suorituskykyyn liittyviä ongelmia',
             3 => 'Osittainen katkos',
