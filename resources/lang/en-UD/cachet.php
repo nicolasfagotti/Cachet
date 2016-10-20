@@ -14,7 +14,6 @@ return [
     'components' => [
         'last_updated' => 'crwdns721:0crwdne721:0',
         'status'       => [
-            0 => 'Unknown',
             1 => 'crwdns265:0crwdne265:0',
             2 => 'crwdns293:0crwdne293:0',
             3 => 'crwdns294:0crwdne294:0',

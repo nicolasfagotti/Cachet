@@ -14,7 +14,6 @@ return [
     'components' => [
         'last_updated' => 'Dernière mise à jour :timestamp',
         'status'       => [
-            0 => 'Unknown',
             1 => 'Opérationnel',
             2 => 'Problèmes de performances',
             3 => 'Panne partielle',

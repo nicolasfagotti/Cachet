@@ -14,7 +14,6 @@ return [
     'components' => [
         'last_updated' => 'Last updated :timestamp',
         'status'       => [
-            0 => 'Unknown',
             1 => 'V provozu',
             2 => 'Problémy s výkonem',
             3 => 'Částečný výpadek',

@@ -14,7 +14,6 @@ return [
     'components' => [
         'last_updated' => 'Last updated :timestamp',
         'status'       => [
-            0 => 'Unknown',
             1 => 'Operasioneel',
             2 => 'Prestasieprobleme',
             3 => 'Gedeeltelike Onderbreking',

@@ -14,7 +14,6 @@ return [
     'components' => [
         'last_updated' => '最終更新 :timestamp',
         'status'       => [
-            0 => 'Unknown',
             1 => '稼働中',
             2 => 'パフォーマンスに関する問題あり',
             3 => '一部停止中',
