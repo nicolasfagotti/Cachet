@@ -38,6 +38,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         'CachetHQ\Cachet\Bus\Events\Component\ComponentStatusWasUpdatedEvent' => [
             'CachetHQ\Cachet\Bus\Handlers\Events\Component\SendComponentUpdateEmailNotificationHandler',
+            'CachetHQ\Cachet\Bus\Handlers\Events\StatusTransition\ReportStatusTransitionHandler',
         ],
         'CachetHQ\Cachet\Bus\Events\Component\ComponentWasAddedEvent' => [
             //

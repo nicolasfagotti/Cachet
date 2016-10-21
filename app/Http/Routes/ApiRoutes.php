@@ -60,6 +60,8 @@ class ApiRoutes
                 $router->get('metrics/{metric}', 'MetricController@getMetric');
                 $router->get('metrics/{metric}/points', 'MetricController@getMetricPoints');
 
+                $router->get('status/transitions/{component}', 'StatusTransitionController@getStatusTransitions');
+
                 $router->get('schedules', 'ScheduleController@getSchedules');
                 $router->get('schedules/{schedule}', 'ScheduleController@getSchedule');
             });
