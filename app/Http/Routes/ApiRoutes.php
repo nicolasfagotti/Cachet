@@ -59,6 +59,9 @@ class ApiRoutes
                 $router->get('metrics', 'MetricController@getMetrics');
                 $router->get('metrics/{metric}', 'MetricController@getMetric');
                 $router->get('metrics/{metric}/points', 'MetricController@getMetricPoints');
+
+                $router->get('status/transitions/{component}', 'StatusTransitionController@getStatusTransitions');
+                $router->get('status/transitions/{component}/{fromDate}/{toDate}', 'StatusTransitionController@getStatusTransitionsByDate');
             });
 
             $router->group(['middleware' => ['auth.api:true']], function (Registrar $router) {
