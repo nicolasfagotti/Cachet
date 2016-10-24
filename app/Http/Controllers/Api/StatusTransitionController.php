@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Request;
 class StatusTransitionController extends AbstractApiController
 {
     /**
-     * Return all updates on the incident.
+     * Return all the status transitions for the component.
      *
      * @param \CachetHQ\Cachet\Models\Component $component
      *
@@ -34,11 +34,28 @@ class StatusTransitionController extends AbstractApiController
     {
         $statusTransitions = StatusTransition::where('component_id', '=', $component->id)->orderBy('created_at', 'desc');
 
-        if ($sortBy = Binput::get('sort')) {
-            $direction = Binput::has('order') && Binput::get('order') == 'desc';
+        $statusTransitions = $statusTransitions->paginate(Binput::get('per_page', 20));
 
-            $statusTransitions->sort($sortBy, $direction);
-        }
+        return $this->paginator($statusTransitions, Request::instance());
+    }
+
+    /**
+     * Return all the status transitions between two dates for the component.
+     *
+     * @param \CachetHQ\Cachet\Models\Component $component
+     * @param string                            $fromDate
+     * @param string                            $toDate
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStatusTransitionsByDate(Component $component, $fromDate, $toDate)
+    {
+        $fromDate = date('Y-m-d H:i:s', strtotime($fromDate));
+        $toDate = date('Y-m-d H:i:s', strtotime($toDate));
+
+        $statusTransitions = StatusTransition::where('component_id', '=', $component->id)
+            ->whereBetween('created_at', [$fromDate, $toDate])
+            ->orderBy('created_at', 'desc');
 
         $statusTransitions = $statusTransitions->paginate(Binput::get('per_page', 20));
 
