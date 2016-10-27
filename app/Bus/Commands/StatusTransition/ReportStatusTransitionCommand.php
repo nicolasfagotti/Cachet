@@ -26,6 +26,13 @@ final class ReportStatusTransitionCommand
     public $component_id;
 
     /**
+     * The component group.
+     *
+     * @var int
+     */
+    public $component_group_id;
+
+    /**
      * The previous command status.
      *
      * @var int
@@ -45,23 +52,26 @@ final class ReportStatusTransitionCommand
      * @var string[]
      */
     public $rules = [
-        'component_id'    => 'required|int',
-        'previous_status' => 'required|int|min:0|max:4',
-        'next_status'     => 'required|int|min:0|max:4',
+        'component_id'       => 'required|int',
+        'component_group_id' => 'required|int',
+        'previous_status'    => 'required|int|min:0|max:4',
+        'next_status'        => 'required|int|min:0|max:4',
     ];
 
     /**
      * Create a new report status transition command instance.
      *
      * @param int $component_id
+     * @param int $component_group_id
      * @param int $previous_status
      * @param int $next_status
      *
      * @return void
      */
-    public function __construct($component_id, $previous_status, $next_status)
+    public function __construct($component_id, $component_group_id, $previous_status, $next_status)
     {
         $this->component_id = $component_id;
+        $this->component_group_id = $component_group_id;
         $this->previous_status = $previous_status;
         $this->next_status = $next_status;
     }
