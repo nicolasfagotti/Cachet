@@ -32,9 +32,10 @@ class StatusTransition extends Model implements HasPresenter
      * @var string[]
      */
     protected $casts = [
-        'component_id'    => 'int',
-        'previous_status' => 'int',
-        'next_status'     => 'int',
+        'component_id'       => 'int',
+        'component_group_id' => 'int',
+        'previous_status'    => 'int',
+        'next_status'        => 'int',
     ];
 
     /**
@@ -44,6 +45,7 @@ class StatusTransition extends Model implements HasPresenter
      */
     protected $fillable = [
         'component_id',
+        'component_group_id',
         'previous_status',
         'next_status',
     ];
@@ -54,9 +56,10 @@ class StatusTransition extends Model implements HasPresenter
      * @var string[]
      */
     public $rules = [
-        'component_id'    => 'required|int',
-        'previous_status' => 'required|int',
-        'next_status'     => 'required|int',
+        'component_id'       => 'required|int',
+        'component_group_id' => 'required|int',
+        'previous_status'    => 'required|int',
+        'next_status'        => 'required|int',
     ];
 
     /**
@@ -67,6 +70,7 @@ class StatusTransition extends Model implements HasPresenter
     protected $sortable = [
         'id',
         'component_id',
+        'component_group_id',
         'previous_status',
         'next_status',
     ];

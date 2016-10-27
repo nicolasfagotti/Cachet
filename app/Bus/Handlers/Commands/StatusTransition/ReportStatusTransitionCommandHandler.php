@@ -31,9 +31,10 @@ class ReportStatusTransitionCommandHandler
     public function handle(ReportStatusTransitionCommand $command)
     {
         $data = [
-            'component_id'    => $command->component_id,
-            'previous_status' => $command->previous_status,
-            'next_status'     => $command->next_status,
+            'component_id'       => $command->component_id,
+            'component_group_id' => $command->component_group_id,
+            'previous_status'    => $command->previous_status,
+            'next_status'        => $command->next_status,
         ];
 
         // Create the status transition.
