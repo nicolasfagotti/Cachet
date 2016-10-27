@@ -10,6 +10,12 @@
     @endif
 
     <div class="pull-right">
-        <small class="text-component-{{ $component->status }} {{ $component->status_color }}" data-toggle="tooltip" title="{{ trans('cachet.components.last_updated', ['timestamp' => $component->updated_at_formatted]) }}">{{ $component->human_status }}</small>
+        <a data-toggle="collapse" href="#component-status-container-{{ $component->id }}">
+            <small class="text-component-{{ $component->status }} {{ $component->status_color }}" data-toggle="tooltip" title="{{ trans('cachet.components.last_updated', ['timestamp' => $component->updated_at_formatted]) }}">{{ $component->human_status }}</small>
+        </a>
+    </div>
+
+    <div class="collapse well" id="component-status-container-{{ $component->id }}">
+        <canvas id="component-status-{{ $component->id }}" data-component-id="{{ $component->id }}" height="128"></canvas>
     </div>
 </li>
