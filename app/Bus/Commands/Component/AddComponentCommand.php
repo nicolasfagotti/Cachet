@@ -75,13 +75,14 @@ final class AddComponentCommand
      * @var string[]
      */
     public $rules = [
-        'name'        => 'required|string',
-        'description' => 'required|string',
-        'status'      => 'required|int|min:0|max:4',
-        'link'        => 'nullable|url',
-        'order'       => 'nullable|int',
-        'group_id'    => 'nullable|int',
-        'enabled'     => 'nullable|bool',
+        'name'          => 'required|string',
+        'description'   => 'required|string',
+        'status'        => 'required|int|min:0|max:4',
+        'link'          => 'nullable|url',
+        'internal_link' => 'nullable|url',
+        'order'         => 'nullable|int',
+        'group_id'      => 'nullable|int',
+        'enabled'       => 'nullable|bool',
     ];
 
     /**
@@ -91,18 +92,20 @@ final class AddComponentCommand
      * @param string $description
      * @param int    $status
      * @param string $link
+     * @param string $internal_link
      * @param int    $order
      * @param int    $group_id
      * @param bool   $enabled
      *
      * @return void
      */
-    public function __construct($name, $description, $status, $link, $order, $group_id, $enabled)
+    public function __construct($name, $description, $status, $link, $internal_link, $order, $group_id, $enabled)
     {
         $this->name = $name;
         $this->description = $description;
         $this->status = (int) $status;
         $this->link = $link;
+        $this->internal_link = $internal_link;
         $this->order = $order;
         $this->group_id = $group_id;
         $this->enabled = $enabled;
