@@ -84,13 +84,14 @@ final class UpdateComponentCommand
      * @var string[]
      */
     public $rules = [
-        'name'        => 'nullable|string',
-        'description' => 'nullable|string',
-        'status'      => 'nullable|int|min:0|max:4',
-        'link'        => 'nullable|url',
-        'order'       => 'nullable|int',
-        'group_id'    => 'nullable|int',
-        'enabled'     => 'nullable|bool',
+        'name'          => 'nullable|string',
+        'description'   => 'nullable|string',
+        'status'        => 'nullable|int|min:0|max:4',
+        'link'          => 'nullable|url',
+        'internal_link' => 'nullable|url',
+        'order'         => 'nullable|int',
+        'group_id'      => 'nullable|int',
+        'enabled'       => 'nullable|bool',
     ];
 
     /**

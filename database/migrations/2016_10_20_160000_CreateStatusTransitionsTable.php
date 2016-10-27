@@ -25,11 +25,14 @@ class CreateStatusTransitionsTable extends Migration
         Schema::create('status_transitions', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('component_id')->unsigned();
+            $table->integer('component_group_id')->unsigned();
             $table->integer('previous_status');
             $table->integer('next_status');
             $table->timestamps();
 
             $table->index('component_id');
+            $table->index('component_group_id');
+            $table->index('created_at');
         });
     }
 
