@@ -121,27 +121,27 @@
                     datasets: [
                     {
                         label: "Unknown",
-                        backgroundColor: 'rgba(128, 128, 128, 1)',
+                        backgroundColor: '#888888',
                         data: []
                     },
                     {
                         label: "Operational",
-                        backgroundColor: 'rgba(0, 255, 0, 1)',
+                        backgroundColor: '#7ED321',
                         data: []
                     },
                     {
                         label: "Performance Issues",
-                        backgroundColor: 'rgba(0, 255, 255, 1)',
+                        backgroundColor: '#3498DB',
                         data: []
                     },
                     {
                         label: "Partial Outage",
-                        backgroundColor: 'rgba(255, 255, 0, 1)',
+                        backgroundColor: '#F7CA18',
                         data: []
                     },
                     {
                         label: "Major Outage",
-                        backgroundColor: 'rgba(255, 0, 0, 1)',
+                        backgroundColor: '#FF6F6F',
                         data: []
                     }
                     ]
