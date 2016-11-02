@@ -16,6 +16,8 @@
     </div>
 
     <div class="collapse well" id="component-status-container-{{ $component->id }}" data-status-component-id="{{ $component->id }}">
+        <div id="component-status-table-{{ $component->id }}"></div>
+        <hr/>
         <canvas id="component-status-bar-{{ $component->id }}" height="128"></canvas>
     </div>
 </li>
