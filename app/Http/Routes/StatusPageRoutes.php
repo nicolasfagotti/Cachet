@@ -69,6 +69,16 @@ class StatusPageRoutes
                 'uses' => 'StatusPageController@showIndex',
             ]);
 
+            $router->get('status/transitions/component/{component}', [
+                'as'   => 'get:component_status_transition',
+                'uses' => 'StatusPageController@getComponentStatusTransitions'
+            ]);
+
+            $router->get('status/transitions/group/{componentGroup}', [
+                'as'   => 'get:group_status_transition',
+                'uses' => 'StatusPageController@getComponentGroupStatusTransitions'
+            ]);
+
             $router->get('component/{component}/shield', [
                 'as'   => 'get:component_shield',
                 'uses' => 'StatusPageController@showComponentBadge',
