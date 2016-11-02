@@ -105,8 +105,8 @@ class Metric extends Model implements HasPresenter
         'places'        => 'required|numeric|between:0,4',
         'default_view'  => 'required|numeric|between:0,3',
         'threshold'     => 'required|numeric|between:0,10',
-        'internal_link' => 'url',
-        'component_id'  => 'int',
+        'internal_link' => 'nullable|url',
+        'component_id'  => 'required|int',
     ];
 
     /**
