@@ -105,23 +105,4 @@ class ComponentsComposer
         return $componentGroupsBuilder->used($usedComponentGroups)
             ->get();
     }
-
-    /**
-     * Get visible grouped components.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    protected function getVisibleComponents()
-    {
-        $componentGroupsBuilder = ComponentGroup::query();
-
-        if (!$this->guard->check()) {
-            $componentGroupsBuilder->visible();
-        }
-
-        $usedComponentGroups = Component::grouped()->pluck('group_id');
-
-        return $componentGroupsBuilder->used($usedComponentGroups)
-            ->get();
-    }
 }

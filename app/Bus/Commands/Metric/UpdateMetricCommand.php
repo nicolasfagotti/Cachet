@@ -146,7 +146,7 @@ final class UpdateMetricCommand
      *
      * @return void
      */
-    public function __construct(Metric $metric, $name, $suffix, $description, $default_value, $calc_type, $display_chart, $places, $default_view, $threshold, $internal_link, $component_id = null, $order = null)
+    public function __construct(Metric $metric, $name, $suffix, $description, $default_value, $calc_type, $display_chart, $places, $default_view, $threshold, $internal_link, $component_id, $order = null)
     {
         $this->metric = $metric;
         $this->name = $name;

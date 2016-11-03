@@ -14,7 +14,9 @@ namespace CachetHQ\Cachet\Bus\Handlers\Commands\Component;
 use CachetHQ\Cachet\Bus\Commands\Component\UpdateComponentCommand;
 use CachetHQ\Cachet\Bus\Events\Component\ComponentStatusWasUpdatedEvent;
 use CachetHQ\Cachet\Bus\Events\Component\ComponentWasUpdatedEvent;
+use CachetHQ\Cachet\Bus\Events\ComponentGroup\ComponentGroupStatusWasUpdatedEvent;
 use CachetHQ\Cachet\Models\Component;
+use CachetHQ\Cachet\Models\ComponentGroup;
 
 class UpdateComponentCommandHandler
 {
@@ -28,13 +30,37 @@ class UpdateComponentCommandHandler
     public function handle(UpdateComponentCommand $command)
     {
         $component = $command->component;
+        $componentGroup = new ComponentGroup();
         $originalStatus = $component->status;
+
+        $fromCGroup = $toCGroup = null;
+        $originalFromCGroupStatus = $originalToCGroupStatus = 0;
+
+        // If the component belongs to a component group before or after the update, get the component group statuses.
+        if ($component->group_id) {
+            $fromCGroup = $componentGroup->find($component->group_id);
+            $originalFromCGroupStatus = $fromCGroup->enabled_components_lowest()->first() ? $fromCGroup->enabled_components_lowest()->first()->status : 0;
+        }
+        if ($command->group_id) {
+            $toCGroup = $componentGroup->find($command->group_id);
+            $originalToCGroupStatus = $toCGroup->enabled_components_lowest()->first() ? $toCGroup->enabled_components_lowest()->first()->status : 0;
+        }
 
         event(new ComponentStatusWasUpdatedEvent($component, $originalStatus, $command->status));
 
         $component->update($this->filter($command));
 
         event(new ComponentWasUpdatedEvent($component));
+
+        // Trigger the event for when the component group status is updated.
+        if ($fromCGroup) {
+            $newFromCGroupStatus = $fromCGroup->enabled_components_lowest()->first() ? $fromCGroup->enabled_components_lowest()->first()->status : 0;
+            event(new ComponentGroupStatusWasUpdatedEvent($fromCGroup, $originalFromCGroupStatus, $newFromCGroupStatus));
+        }
+        if ($toCGroup && $toCGroup != $fromCGroup) {
+            $newToCGroupStatus = $toCGroup->enabled_components_lowest()->first() ? $toCGroup->enabled_components_lowest()->first()->status : 0;
+            event(new ComponentGroupStatusWasUpdatedEvent($toCGroup, $originalToCGroupStatus, $newToCGroupStatus));
+        }
 
         return $component;
     }

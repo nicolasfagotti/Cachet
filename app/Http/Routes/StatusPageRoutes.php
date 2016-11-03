@@ -49,6 +49,11 @@ class StatusPageRoutes
                 'uses' => 'StatusPageController@showIncident',
             ]);
 
+            $router->get('schedules/{schedule}', [
+                'as'   => 'get:schedule',
+                'uses' => 'StatusPageController@showSchedule',
+            ]);
+
             $router->get('metrics/{metric}', [
                 'as'   => 'get:metric',
                 'uses' => 'StatusPageController@getMetrics',
@@ -62,6 +67,16 @@ class StatusPageRoutes
             $router->get('component/{component}', [
                 'as'   => 'get:component-status-page',
                 'uses' => 'StatusPageController@showIndex',
+            ]);
+
+            $router->get('status/transitions/component/{component}', [
+                'as'   => 'get:component_status_transition',
+                'uses' => 'StatusPageController@getComponentStatusTransitions'
+            ]);
+
+            $router->get('status/transitions/group/{componentGroup}', [
+                'as'   => 'get:group_status_transition',
+                'uses' => 'StatusPageController@getComponentGroupStatusTransitions'
             ]);
 
             $router->get('component/{component}/shield', [
