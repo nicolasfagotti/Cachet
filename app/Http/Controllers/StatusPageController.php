@@ -224,12 +224,21 @@ class StatusPageController extends AbstractApiController
     {
         $fromDate = date('Y-m-d H:i:s', strtotime(Binput::get('from')));
         $toDate = date('Y-m-d H:i:s', strtotime(Binput::get('to')));
+        $currentDate = gmdate('Y-m-d H:i:s');
 
         $statusTransitions = StatusTransition::where('component_id', '=', $component->id)
             ->whereBetween('created_at', [$fromDate, $toDate])
-            ->orderBy('created_at', 'desc');
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return $this->item($statusTransitions->get());
+        if (count($statusTransitions) == 0 && $fromDate < $currentDate) {
+            $statusTransitions = StatusTransition::where('component_id', '=', $component->id)
+                ->where('created_at', '<', $fromDate)
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+
+        return $this->item($statusTransitions);
     }
 
     /**
