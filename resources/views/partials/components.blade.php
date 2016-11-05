@@ -44,18 +44,29 @@
 <script>
     (function () {
         var charts = {};
-        var lastWeek = _.map([-7,-6,-5,-4,-3,-2,-1,0], function(daysAgo) {
-            return moment.utc()
-            .hours(0)
-            .minutes(0)
-            .seconds(0)
-            .milliseconds(0)
-            .add(daysAgo, 'days');
-        });
+        var visibleWeek = {};
 
         $('div[data-status-component-id]').each(function() {
-            drawChart($(this), lastWeek);
+            visibleWeek[$(this).data('status-component-id')] = 0;
+            drawChart($(this), getMappingDays(0));
         });
+
+        // Update the chart with previous or next week data.
+        window.updateChart = function(componentId, direction) {
+            visibleWeek[componentId] = (direction == 'prev') ? visibleWeek[componentId] - 7 : (direction == 'next') ? visibleWeek[componentId] + 7 : 0;
+            drawChart($('#component-status-container-' + componentId), getMappingDays(visibleWeek[componentId]));
+        };
+
+        function getMappingDays(startDay) {
+            return _.map([startDay-7, startDay-6, startDay-5, startDay-4, startDay-3, startDay-2, startDay-1, startDay], function(daysAgo) {
+                return moment.utc()
+                        .hours(0)
+                        .minutes(0)
+                        .seconds(0)
+                        .milliseconds(0)
+                        .add(daysAgo, 'days');
+            });
+        }
 
         function drawChart($el, days) {
             var componentId = $el.data('status-component-id');
@@ -64,13 +75,13 @@
 
             $.getJSON('/status/transitions/component/' + componentId, {
                 from: fromDate,
-                to:toDate
+                to: toDate
             }).done(function (result) {
                 // 1. Convert to durations
                 var durations = asDurations(result, days);
                 if (typeof charts[componentId] === 'undefined') {
                     charts[componentId] = {
-                        bar : {
+                        bar: {
                             context: document.getElementById("component-status-bar-" + componentId).getContext("2d"),
                             chart: null,
                         }
@@ -82,13 +93,16 @@
                 if (barChart.chart !== null) {
                     barChart.chart.destroy();
                 }
+                Chart.defaults.global.defaultFontFamily = "'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                Chart.defaults.global.defaultFontColor = '#444';
+                Chart.defaults.global.defaultFontStyle = 'normal';
                 barChart.chart = new Chart(barChart.context, {
                     type: 'bar',
                     data: asBarChartData(durations, days),
                     options: {
                         title: {
                             display: true,
-                            text: 'Status Durations Per Day'
+                            text: '{{ trans('cachet.components.historical.durations_title') }}'
                         },
                         scales: {
                             xAxes: [{
@@ -98,7 +112,7 @@
                                 stacked: true,
                                 scaleLabel: {
                                     display: true,
-                                    labelString: 'Hours of day in status'
+                                    labelString: '{{ trans('cachet.components.historical.durations_y_label') }}'
                                 }
                             }]
                         }
@@ -106,8 +120,7 @@
                 });
 
                 // 4. Create Transitions Table:
-                var tableHTML = asTable(durations, days);
-                document.getElementById("component-status-table-" + componentId).innerHTML = tableHTML;
+                document.getElementById("component-status-table-" + componentId).innerHTML = asTable(durations, days);
                 $('#component-status-table-' + componentId).find('[data-toggle="popover"]').popover({
                     container: 'body',
                     trigger: 'focus hover',
@@ -120,29 +133,30 @@
                 var result = _.chain(data.data)
                 .sortBy(['utc_created_at'])
                 .reduce(function(result, transition, index, transitions) {
-                    var status = transition.previous_status;
-                    var transitionDate = moment.utc(transition.utc_created_at);
-                    var hours = transitionDate.diff(result.currentDate, 'hours', true);
+                    var componentId = transition.component_id,
+                        status = transition.previous_status,
+                        transitionDate = moment.utc(transition.utc_created_at),
+                        hours = transitionDate.diff(result.currentDate, 'hours', true);
                     if (hours <= 0) {
-                        // transitionDate is before the week we display
-                        // just skip this transition
+                        // transitionDate is before the week we display. Just skip this transition.
                         return result;
                     }
                     result.durations.push({
-                        status : status,
+                        status: status,
                         fromDate: result.currentDate.clone(),
-                        toDate : transitionDate.clone(),
+                        toDate: transitionDate.clone(),
                         duration: hours
                     });
                     result.currentDate = transitionDate;
                     result.sum += hours;
                     if (index === transitions.length -1) {
-                        // Last iteration, add remaining hours
-                        var remaining = moment.utc().diff(result.currentDate, 'hours', true);
+                        // Last iteration, add remaining hours.
+                        var endOfDay = moment.utc(days[days.length-1]).endOf('day');
+                        var remaining = visibleWeek[componentId] == 0 ? moment.utc().diff(result.currentDate, 'hours', true) : endOfDay.diff(result.currentDate, 'hours', true);
                         result.durations.push({
-                            fromDate : result.currentDate.clone(),
-                            toDate : moment.utc(),
-                            status : transition.next_status,
+                            fromDate: result.currentDate.clone(),
+                            toDate: visibleWeek[componentId] == 0 ? moment.utc() : endOfDay,
+                            status: transition.next_status,
                             duration: remaining
                         });
                         result.currentDate = moment.utc();
@@ -150,13 +164,13 @@
                     }
                     return result;
                 }, {
-                    currentDate :days[0],
-                    durations : [],
-                    sum : 0
+                    currentDate: days[0],
+                    durations: [],
+                    sum: 0
                 })
                 .value();
 
-                // Add percentages:
+                // Add percentages.
                 _.forEach(result.durations, function(d, index) {
                     d.percentage = (d.duration  * 100 / result.sum) + '%' ;
                 });
@@ -169,7 +183,6 @@
                 var group = 0;
                 var total = groupingPeriod;
                 _.forEach(durations, function(durationObj) {
-                    var status = durationObj.status;
                     var duration = durationObj.duration;
                     while (duration >= total) {
                         if (!result[group]) {
@@ -177,7 +190,7 @@
                         }
                         result[group].push(_.extend(_.cloneDeep(durationObj), {
                             durationInGroup: total,
-                            percentageInGroup : ((total * 100) / groupingPeriod) +'%'
+                            percentageInGroup: ((total * 100) / groupingPeriod) +'%'
                         }));
                         duration = duration - total;
                         group = group + 1; // Next Group
@@ -189,7 +202,7 @@
                     }
                     result[group].push(_.extend(_.cloneDeep(durationObj), {
                         durationInGroup: duration,
-                        percentageInGroup : ((duration * 100) / groupingPeriod) +'%'
+                        percentageInGroup: ((duration * 100) / groupingPeriod) +'%'
                     }));
                     total = total - duration;
                 });
@@ -205,27 +218,27 @@
                     datasets: [
                     {
                         label: "Unknown",
-                        backgroundColor: '#888888',
+                        backgroundColor: 'rgba(136, 136, 136, 0.7)',
                         data: []
                     },
                     {
                         label: "Operational",
-                        backgroundColor: '#7ED321',
+                        backgroundColor: 'rgba(126, 211, 33, 0.7)',
                         data: []
                     },
                     {
                         label: "Performance Issues",
-                        backgroundColor: '#3498DB',
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
                         data: []
                     },
                     {
                         label: "Partial Outage",
-                        backgroundColor: '#F7CA18',
+                        backgroundColor: 'rgba(247, 202, 24, 0.7)',
                         data: []
                     },
                     {
                         label: "Major Outage",
-                        backgroundColor: '#FF6F6F',
+                        backgroundColor: 'rgba(255, 111, 111, 0.7)',
                         data: []
                     }
                     ]
@@ -260,7 +273,7 @@
             function asTable(durations, days) {
 
                 var tableTemplate = _.template('<div style="padding:2rem">' +
-                    '<p style="text-align: center"><small><strong>Status Transitions</small></strong></p>' +
+                    '<p class="chart-title">{{ trans('cachet.components.historical.transition_title') }}</p>' +
                     '<% _.forEach(data, function(row) { %>' +
                     '<div>' +
                     '<div class="pull-left" style="width: 6em">'+
@@ -283,23 +296,23 @@
 
                 var statusText = [{
                     label: "Unknown",
-                    backgroundColor: '#888888',
+                    backgroundColor: 'rgba(136, 136, 136, 0.7)',
                 },
                 {
                     label: "Operational",
-                    backgroundColor: '#7ED321',
+                    backgroundColor: 'rgba(126, 211, 33, 0.7)',
                 },
                 {
                     label: "Performance Issues",
-                    backgroundColor: '#3498DB',
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
                 },
                 {
                     label: "Partial Outage",
-                    backgroundColor: '#F7CA18',
+                    backgroundColor: 'rgba(247, 202, 24, 0.7)',
                 },
                 {
                     label: "Major Outage",
-                    backgroundColor: '#FF6F6F',
+                    backgroundColor: 'rgba(255, 111, 111, 0.7)',
                 }];
 
                 // 1. Group By Day
@@ -318,23 +331,24 @@
                         })
                         .map(function(d) {
                             return {
-                                width : d.percentageInGroup,
+                                width: d.percentageInGroup,
                                 backgroundColor: statusText[d.status].backgroundColor,
-                                text : '<p style="padding: 2px;background:' + statusText[d.status].backgroundColor +'">' + statusText[d.status].label + '</p>' +
+                                text: '<p style="padding: 2px;background:' + statusText[d.status].backgroundColor +'">' + statusText[d.status].label + '</p>' +
                                 '<dl>' +
                                 '<dt>From Date:</dt><dd>'+ d.fromDate.toISOString() + '</dd>' +
                                 '<dt>To Date:</dt><dd>' + d.toDate.toISOString() + '</dd>' +
                                 '<dt>Duration:</dt><dd>' + d.duration.toFixed(4) + ' hours</dd>' +
-                                '</dl'
+                                '</dl>'
                             };
                         })
                         .value();
                     templateData.push({
-                        startDate : fromDate.format('YYYY-MM-DD'),
-                        endDate : toDate.format('YYYY-MM-DD'),
-                        durations : groupData
+                        startDate: fromDate.format('YYYY-MM-DD'),
+                        endDate: toDate.format('YYYY-MM-DD'),
+                        durations: groupData
                     });
                 });
+
                 return tableTemplate({
                     data: templateData
                 });

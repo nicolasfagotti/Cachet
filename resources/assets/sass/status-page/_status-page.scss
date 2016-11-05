@@ -439,4 +439,26 @@ body.status-page {
             }
         }
     }
+
+    .historical-charts {
+        margin-top: 10px;
+        color: $cachet-gray-darker;
+
+        .chart-title {
+            font-size: 0.85em;
+            font-weight: bold;
+            color: $cachet-gray-darker !important;
+            text-align: center;
+        }
+
+        .chart-pager {
+            margin-top: 32px;
+
+            a {
+                font-size: 0.8em;
+                color: $cachet-gray-darker !important;
+                text-decoration: none;
+            }
+        }
+    }
 }

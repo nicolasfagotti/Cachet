@@ -15,9 +15,19 @@
         </a>
     </div>
 
-    <div class="collapse well" id="component-status-container-{{ $component->id }}" data-status-component-id="{{ $component->id }}">
+    <div class="collapse well historical-charts" id="component-status-container-{{ $component->id }}" data-status-component-id="{{ $component->id }}">
         <div id="component-status-table-{{ $component->id }}"></div>
         <hr/>
         <canvas id="component-status-bar-{{ $component->id }}" height="128"></canvas>
+        <div class="clearfix chart-pager">
+            <a href="javascript: updateChart('{{ $component->id }}', 'prev');" class="pull-left">
+                <span aria-hidden="true">&laquo;</span>
+                {{ trans('cachet.components.historical.previous_week') }}
+            </a>
+            <a href="javascript: updateChart('{{ $component->id }}', 'next');" class="pull-right">
+                {{ trans('cachet.components.historical.next_week') }}
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </div>
     </div>
 </li>
