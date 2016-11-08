@@ -129,46 +129,73 @@
             });
 
             function asDurations(data, days) {
-                // Transform transition dates to durations
-                var result = _.chain(data.data)
-                .sortBy(['utc_created_at'])
-                .reduce(function(result, transition, index, transitions) {
-                    var componentId = transition.component_id,
-                        status = transition.previous_status,
-                        transitionDate = moment.utc(transition.utc_created_at),
-                        hours = transitionDate.diff(result.currentDate, 'hours', true);
-                    if (hours <= 0) {
-                        // transitionDate is before the week we display. Just skip this transition.
-                        return result;
-                    }
-                    result.durations.push({
-                        status: status,
-                        fromDate: result.currentDate.clone(),
-                        toDate: transitionDate.clone(),
-                        duration: hours
-                    });
-                    result.currentDate = transitionDate;
-                    result.sum += hours;
-                    if (index === transitions.length -1) {
-                        // Last iteration, add remaining hours.
-                        var endOfDay = moment.utc(days[days.length-1]).endOf('day');
-                        var remaining = visibleWeek[componentId] == 0 ? moment.utc().diff(result.currentDate, 'hours', true) : endOfDay.diff(result.currentDate, 'hours', true);
-                        result.durations.push({
-                            fromDate: result.currentDate.clone(),
-                            toDate: visibleWeek[componentId] == 0 ? moment.utc() : endOfDay,
-                            status: transition.next_status,
-                            duration: remaining
-                        });
-                        result.currentDate = moment.utc();
-                        result.sum += remaining;
-                    }
-                    return result;
-                }, {
-                    currentDate: days[0],
-                    durations: [],
-                    sum: 0
-                })
-                .value();
+                var result;
+
+                // Transform transition dates to durations.
+                if (data.data.transitions.length) {
+                    result = _.chain(data.data.transitions)
+                            .sortBy(['utc_created_at'])
+                            .reduce(function (result, transition, index, transitions) {
+                                var componentId = transition.component_id,
+                                    transitionDate = moment.utc(transition.utc_created_at),
+                                    hours = transitionDate.diff(result.currentDate, 'hours', true);
+
+                                // If transitionDate is before the week we display, skip the transition.
+                                if (hours <= 0) { return result; }
+
+                                result.durations.push({
+                                    status: transition.previous_status,
+                                    fromDate: result.currentDate.clone(),
+                                    toDate: transitionDate.clone(),
+                                    duration: hours
+                                });
+                                result.currentDate = transitionDate;
+                                result.sum += hours;
+
+                                // If it's the last iteration, add final transition.
+                                if (index === transitions.length - 1) {
+                                    var endOfDay = moment.utc(days[days.length - 1]).endOf('day'),
+                                        remaining = visibleWeek[componentId] == 0 ? moment.utc().diff(result.currentDate, 'hours', true) : endOfDay.diff(result.currentDate, 'hours', true);
+                                    result.durations.push({
+                                        fromDate: result.currentDate.clone(),
+                                        toDate: visibleWeek[componentId] == 0 ? moment.utc() : endOfDay,
+                                        status: transition.next_status,
+                                        duration: remaining
+                                    });
+                                    result.currentDate = moment.utc();
+                                    result.sum += remaining;
+                                }
+                                return result;
+                            }, {
+                                currentDate: days[0],
+                                durations: [],
+                                sum: 0
+                            }).value();
+
+                // If the transitions are empty, check the previous transition.
+                } else if (data.data.previous_transition.length && visibleWeek[componentId] <= 0) {
+                    var startOfWeek = moment.utc(days[0]).startOf('day'),
+                        endOfWeek = moment.utc(days[days.length - 1]).endOf('day'),
+                        duration = visibleWeek[componentId] == 0 ? moment.utc().diff(startOfWeek, 'hours', true) : endOfWeek.diff(startOfWeek, 'hours', true);
+
+                    result = {
+                        currentDate: days[0],
+                        durations: [{
+                            status: data.data.previous_transition[0].next_status,
+                            fromDate: startOfWeek,
+                            toDate: visibleWeek[componentId] == 0 ? moment.utc() : endOfWeek,
+                            duration: duration
+                        }],
+                        sum: duration
+                    };
+
+                } else {
+                    result = {
+                        currentDate: days[0],
+                        durations: [],
+                        sum: 0
+                    };
+                }
 
                 // Add percentages.
                 _.forEach(result.durations, function(d, index) {
