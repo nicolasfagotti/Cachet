@@ -238,11 +238,23 @@ class StatusPageController extends AbstractApiController
         $fromDate = date('Y-m-d H:i:s', strtotime(Binput::get('from')));
         $toDate = date('Y-m-d H:i:s', strtotime(Binput::get('to')));
 
+        // Get the status transition between the dates defined.
         $statusTransitions = StatusTransition::where('component_id', '=', $component->id)
             ->whereBetween('created_at', [$fromDate, $toDate])
-            ->orderBy('created_at', 'desc');
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return $this->item($statusTransitions->get());
+        // Get the previous status transition to the dates queried.
+        $previousStatusTransitions = StatusTransition::where('component_id', '=', $component->id)
+            ->where('created_at', '<', $fromDate)
+            ->orderBy('created_at', 'desc')
+            ->take(1)
+            ->get();
+
+        return $this->item([
+            'transitions'         => $statusTransitions,
+            'previous_transition' => $previousStatusTransitions,
+        ]);
     }
 
     /**
@@ -259,8 +271,19 @@ class StatusPageController extends AbstractApiController
 
         $statusTransitions = StatusTransition::where('component_group_id', '=', $componentGroup->id)
             ->whereBetween('created_at', [$fromDate, $toDate])
-            ->orderBy('created_at', 'desc');
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return $this->item($statusTransitions->get());
+        // Get the previous status transition to the dates queried.
+        $previousStatusTransitions = StatusTransition::where('component_group_id', '=', $componentGroup->id)
+            ->where('created_at', '<', $fromDate)
+            ->orderBy('created_at', 'desc')
+            ->take(1)
+            ->get();
+
+        return $this->item([
+            'transitions'         => $statusTransitions,
+            'previous_transition' => $previousStatusTransitions,
+        ]);
     }
 }
