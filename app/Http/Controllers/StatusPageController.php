@@ -15,9 +15,11 @@ use AltThree\Badger\Facades\Badger;
 use CachetHQ\Cachet\Dates\DateFactory;
 use CachetHQ\Cachet\Http\Controllers\Api\AbstractApiController;
 use CachetHQ\Cachet\Models\Component;
+use CachetHQ\Cachet\Models\ComponentGroup;
 use CachetHQ\Cachet\Models\Incident;
 use CachetHQ\Cachet\Models\Metric;
 use CachetHQ\Cachet\Models\Schedule;
+use CachetHQ\Cachet\Models\StatusTransition;
 use CachetHQ\Cachet\Repositories\Metric\MetricRepository;
 use Exception;
 use GrahamCampbell\Binput\Facades\Binput;
@@ -209,5 +211,66 @@ class StatusPageController extends AbstractApiController
         );
 
         return Response::make($badge, 200, ['Content-Type' => 'image/svg+xml']);
+    }
+
+    /**
+     * Return all the status transitions between two dates for the component.
+     *
+     * @param \CachetHQ\Cachet\Models\Component $component
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getComponentStatusTransitions(Component $component)
+    {
+        $fromDate = date('Y-m-d H:i:s', strtotime(Binput::get('from')));
+        $toDate = date('Y-m-d H:i:s', strtotime(Binput::get('to')));
+
+        // Get the status transition between the dates defined.
+        $statusTransitions = StatusTransition::where('component_id', '=', $component->id)
+            ->whereBetween('created_at', [$fromDate, $toDate])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get the previous status transition to the dates queried.
+        $previousStatusTransitions = StatusTransition::where('component_id', '=', $component->id)
+            ->where('created_at', '<', $fromDate)
+            ->orderBy('created_at', 'desc')
+            ->take(1)
+            ->get();
+
+        return $this->item([
+            'transitions'         => $statusTransitions,
+            'previous_transition' => $previousStatusTransitions,
+        ]);
+    }
+
+    /**
+     * Return all the status transitions between two dates for the component group.
+     *
+     * @param \CachetHQ\Cachet\Models\ComponentGroup $componentGroup
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getComponentGroupStatusTransitions(ComponentGroup $componentGroup)
+    {
+        $fromDate = date('Y-m-d H:i:s', strtotime(Binput::get('from')));
+        $toDate = date('Y-m-d H:i:s', strtotime(Binput::get('to')));
+
+        $statusTransitions = StatusTransition::where('component_group_id', '=', $componentGroup->id)
+            ->whereBetween('created_at', [$fromDate, $toDate])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get the previous status transition to the dates queried.
+        $previousStatusTransitions = StatusTransition::where('component_group_id', '=', $componentGroup->id)
+            ->where('created_at', '<', $fromDate)
+            ->orderBy('created_at', 'desc')
+            ->take(1)
+            ->get();
+
+        return $this->item([
+            'transitions'         => $statusTransitions,
+            'previous_transition' => $previousStatusTransitions,
+        ]);
     }
 }
