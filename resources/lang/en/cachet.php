@@ -27,8 +27,8 @@ return [
         ],
         'historical' => [
             'transition_title'  => 'Status Transitions',
-            'durations_title'   => 'Status Durations Per Day',
-            'durations_y_label' => 'Hours of day in status',
+            'durations_title'   => 'Availability',
+            'durations_y_label' => 'Percentage',
             'previous_week'     => 'Previous week',
             'next_week'         => 'Next week',
         ],

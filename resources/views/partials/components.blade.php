@@ -102,7 +102,7 @@
                     options: {
                         title: {
                             display: true,
-                            text: '{{ trans('cachet.components.historical.durations_title') }}'
+                            text: '{{ trans("cachet.components.historical.durations_title") }}'
                         },
                         scales: {
                             xAxes: [{
@@ -112,9 +112,58 @@
                                 stacked: true,
                                 scaleLabel: {
                                     display: true,
-                                    labelString: '{{ trans('cachet.components.historical.durations_y_label') }}'
+                                    labelString: '{{ trans("cachet.components.historical.durations_y_label") }}'
                                 }
                             }]
+                        },
+                        legend: {
+                            position: 'left',
+                            labels: {
+                                generateLabels: function(chart) {
+                                    var data = chart.data;
+                                    return _.isArray(data.datasets) ? _.map(data.datasets, function(dataset, i) {
+                                        return {
+                                            text: dataset.label + ' (' + formatNumber(dataset.percent * 100) + '%)',
+                                            fillStyle: (!_.isArray(dataset.backgroundColor) ? dataset.backgroundColor : dataset.backgroundColor[0]),
+                                            hidden: !chart.isDatasetVisible(i),
+                                            lineCap: dataset.borderCapStyle,
+                                            lineDash: dataset.borderDash,
+                                            lineDashOffset: dataset.borderDashOffset,
+                                            lineJoin: dataset.borderJoinStyle,
+                                            lineWidth: dataset.borderWidth,
+                                            strokeStyle: dataset.borderColor,
+                                            pointStyle: dataset.pointStyle,
+                                            // Below is extra data used for toggling the datasets
+                                            datasetIndex: i
+                                        };
+                                    }) : [];
+                                }
+                            }
+                        },
+                        tooltips: {
+                            custom: function(tooltip) {
+                                // Check if tooltip and tooltip.body
+                                if (!tooltip || !tooltip.body) {
+                                    return;
+                                }
+
+                                // Read data
+                                var tooltipInstance = this;
+                                var data = tooltipInstance._data;
+                                var datasetIndex = tooltipInstance._active[0]._datasetIndex;
+                                var index = tooltipInstance._active[0]._index;
+                                var dataset = data.datasets[datasetIndex];
+                                var value = formatNumber(dataset.data[index]);
+
+                                // Set tooltip text
+                                tooltip.body = [{
+                                    after: [],
+                                    before: [],
+                                    lines: [
+                                        dataset.label + ' (' + value + '%)'
+                                    ]
+                                }];
+                            }
                         }
                     }
                 });
@@ -152,10 +201,10 @@
                     if (index === transitions.length -1) {
                         // Last iteration, add remaining hours.
                         var endOfDay = moment.utc(days[days.length-1]).endOf('day');
-                        var remaining = visibleWeek[componentId] == 0 ? moment.utc().diff(result.currentDate, 'hours', true) : endOfDay.diff(result.currentDate, 'hours', true);
+                        var remaining = visibleWeek[componentId] === 0 ? moment.utc().diff(result.currentDate, 'hours', true) : endOfDay.diff(result.currentDate, 'hours', true);
                         result.durations.push({
                             fromDate: result.currentDate.clone(),
-                            toDate: visibleWeek[componentId] == 0 ? moment.utc() : endOfDay,
+                            toDate: visibleWeek[componentId] === 0 ? moment.utc() : endOfDay,
                             status: transition.next_status,
                             duration: remaining
                         });
@@ -190,7 +239,7 @@
                         }
                         result[group].push(_.extend(_.cloneDeep(durationObj), {
                             durationInGroup: total,
-                            percentageInGroup: ((total * 100) / groupingPeriod) +'%'
+                            percentageInGroup: (total / groupingPeriod)
                         }));
                         duration = duration - total;
                         group = group + 1; // Next Group
@@ -202,7 +251,7 @@
                     }
                     result[group].push(_.extend(_.cloneDeep(durationObj), {
                         durationInGroup: duration,
-                        percentageInGroup: ((duration * 100) / groupingPeriod) +'%'
+                        percentageInGroup: (duration / groupingPeriod)
                     }));
                     total = total - duration;
                 });
@@ -215,30 +264,36 @@
                     labels: _.map(days, function(d) {
                         return d.format('YYYY-MM-DD');
                     }),
+                    total : 0,
                     datasets: [
                     {
                         label: "Unknown",
                         backgroundColor: 'rgba(136, 136, 136, 0.7)',
+                        total : 0,
                         data: []
                     },
                     {
                         label: "Operational",
                         backgroundColor: 'rgba(126, 211, 33, 0.7)',
+                        total : 0,
                         data: []
                     },
                     {
                         label: "Performance Issues",
                         backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        total : 0,
                         data: []
                     },
                     {
                         label: "Partial Outage",
                         backgroundColor: 'rgba(247, 202, 24, 0.7)',
+                        total : 0,
                         data: []
                     },
                     {
                         label: "Major Outage",
                         backgroundColor: 'rgba(255, 111, 111, 0.7)',
+                        total : 0,
                         data: []
                     }
                     ]
@@ -256,14 +311,15 @@
                     _.forEach(durationsInDay, function(durationObj) {
                         var status = durationObj.status;
                         var duration = durationObj.durationInGroup;
-                        result.datasets[status].data[day] += duration;
+                        var percent = durationObj.percentageInGroup;
+                        result.datasets[status].data[day] += percent * 100;
+                        result.datasets[status].total += duration;
+                        result.total += duration;
                     });
                 });
-                // 2.3. Remove decimal points
+                // 2.3. Add dataset percentage
                 _.forEach(result.datasets, function(dataset) {
-                    for (var i = 0; i < dataset.data.length; i+=1) {
-                        dataset.data[i] = dataset.data[i].toFixed(4);
-                    }
+                    dataset.percent = dataset.total / result.total;
                 });
 
                 // 3. Return result
@@ -273,7 +329,7 @@
             function asTable(durations, days) {
 
                 var tableTemplate = _.template('<div style="padding:2rem">' +
-                    '<p class="chart-title">{{ trans('cachet.components.historical.transition_title') }}</p>' +
+                    '<p class="chart-title">{{ trans("cachet.components.historical.transition_title") }}</p>' +
                     '<% _.forEach(data, function(row) { %>' +
                     '<div>' +
                     '<div class="pull-left" style="width: 6em">'+
@@ -281,7 +337,7 @@
                     '</div>' +
                     '<div class="progress" style="margin-bottom: 0px">' +
                     '   <% _.forEach(row.durations, function(d) { %>' +
-                    '   <div class="progress-bar" style="width: <%- d.width %>; background-color:<%- d.backgroundColor %>">' +
+                    '   <div class="progress-bar" style="width: <%- d.width * 100 %>%; background-color:<%- d.backgroundColor %>">' +
                     '       <label style="width:100%; height: 100%; margin: 0px; padding:0px" data-toggle="popover" data-content="<%- d.text %>" data-html="true">' +
                     '       <input class="sr-only" type="radio" name="status">' +
                     '       </label>' +
@@ -337,7 +393,7 @@
                                 '<dl>' +
                                 '<dt>From Date:</dt><dd>'+ d.fromDate.toISOString() + '</dd>' +
                                 '<dt>To Date:</dt><dd>' + d.toDate.toISOString() + '</dd>' +
-                                '<dt>Duration:</dt><dd>' + d.duration.toFixed(4) + ' hours</dd>' +
+                                '<dt>Duration:</dt><dd>' + humanizeDuration(d.duration) + '</dd>' +
                                 '</dl>'
                             };
                         })
@@ -352,6 +408,17 @@
                 return tableTemplate({
                     data: templateData
                 });
+            }
+
+            function formatNumber(num) {
+                return (num.toFixed(4) * 1).toString();
+            }
+
+            function humanizeDuration(duration) {
+                var hours = Math.floor(duration);
+                var minutes = Math.floor((duration - hours) * 60);
+                var seconds = Math.floor(((duration - hours) * 60 - minutes) * 60);
+                return hours + ' hours, ' + minutes + ' minutes, ' + seconds + ' seconds';
             }
         }
 }());
