@@ -52,6 +52,7 @@ class UpdateComponentCommandHandler
             'name'        => $command->name,
             'description' => $command->description,
             'link'        => $command->link,
+            'internal_link' => $command->internal_link,
             'status'      => $command->status,
             'enabled'     => $command->enabled,
             'order'       => $command->order,

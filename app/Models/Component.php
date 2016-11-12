@@ -34,6 +34,7 @@ class Component extends Model implements HasPresenter
         'group_id'    => 0,
         'description' => '',
         'link'        => '',
+        'internal_link' => '',
         'enabled'     => true,
     ];
 
@@ -48,6 +49,7 @@ class Component extends Model implements HasPresenter
         'status'      => 'int',
         'order'       => 'int',
         'link'        => 'string',
+        'internal_link' => 'string',
         'group_id'    => 'int',
         'enabled'     => 'bool',
         'deleted_at'  => 'date',
@@ -64,6 +66,7 @@ class Component extends Model implements HasPresenter
         'status',
         'tags',
         'link',
+        'internal_link',
         'order',
         'group_id',
         'enabled',
@@ -80,6 +83,7 @@ class Component extends Model implements HasPresenter
         'order'    => 'nullable|int',
         'group_id' => 'nullable|int',
         'link'     => 'nullable|url',
+        'internal_link' => 'nullable|url',
         'enabled'  => 'required|bool',
     ];
 

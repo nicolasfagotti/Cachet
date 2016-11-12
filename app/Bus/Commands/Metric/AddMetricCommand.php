@@ -35,6 +35,13 @@ final class AddMetricCommand
     public $description;
 
     /**
+     * The internal link associated to the metric.
+     *
+     * @var string
+     */
+    public $internal_link;
+
+    /**
      * The metric default value.
      *
      * @var float
@@ -92,6 +99,7 @@ final class AddMetricCommand
         'name'          => 'required|string',
         'suffix'        => 'required|string',
         'description'   => 'nullable|string',
+        'internal_link' => 'nullable|url',
         'display_chart' => 'nullable|bool',
         'default_value' => 'required|int',
         'calc_type'     => 'required|int',
@@ -108,6 +116,7 @@ final class AddMetricCommand
      * @param string $name
      * @param string $suffix
      * @param string $description
+     * @param string $internal_link
      * @param float  $default_value
      * @param int    $calc_type
      * @param int    $display_chart
@@ -118,11 +127,12 @@ final class AddMetricCommand
      *
      * @return void
      */
-    public function __construct($name, $suffix, $description, $default_value, $calc_type, $display_chart, $places, $default_view, $threshold, $order = 0)
+    public function __construct($name, $suffix, $description, $internal_link, $default_value, $calc_type, $display_chart, $places, $default_view, $threshold, $order = 0)
     {
         $this->name = $name;
         $this->suffix = $suffix;
         $this->description = $description;
+        $this->internal_link = $internal_link;
         $this->default_value = $default_value;
         $this->calc_type = $calc_type;
         $this->display_chart = $display_chart;

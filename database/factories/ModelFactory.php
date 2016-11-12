@@ -28,6 +28,7 @@ $factory->define(Component::class, function ($faker) {
         'name'        => $faker->sentence(),
         'description' => $faker->paragraph(),
         'link'        => $faker->url(),
+        'internal_link' => $faker->url(),
         'status'      => random_int(1, 4),
         'order'       => 0,
     ];
@@ -74,6 +75,7 @@ $factory->define(Metric::class, function ($faker) {
         'name'          => $faker->sentence(),
         'suffix'        => $faker->word(),
         'description'   => $faker->paragraph(),
+        'internal_link' => $faker->url(),
         'default_value' => 1,
         'places'        => 2,
         'calc_type'     => $faker->boolean(),

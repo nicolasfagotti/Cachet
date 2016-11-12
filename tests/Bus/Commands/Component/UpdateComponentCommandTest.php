@@ -35,6 +35,7 @@ class UpdateComponentCommandTest extends AbstractTestCase
             'description' => 'Foo',
             'status'      => 1,
             'link'        => 'https://cachethq.io',
+            'internal_link' => 'https://cachethq.io',
             'order'       => 0,
             'group_id'    => 0,
             'enabled'     => true,
@@ -46,6 +47,7 @@ class UpdateComponentCommandTest extends AbstractTestCase
             $params['description'],
             $params['status'],
             $params['link'],
+            $params['internal_link'],
             $params['order'],
             $params['group_id'],
             $params['enabled']

@@ -44,6 +44,13 @@ final class UpdateMetricCommand
     public $description;
 
     /**
+     * The internal link associated to the metric.
+     *
+     * @var string
+     */
+    public $internal_link;
+
+    /**
      * The metric default value.
      *
      * @var float
@@ -101,6 +108,7 @@ final class UpdateMetricCommand
         'name'          => 'nullable|string',
         'suffix'        => 'nullable|string',
         'description'   => 'nullable|string',
+        'internal_link' => 'nullable|url',
         'display_chart' => 'nullable|bool',
         'default_value' => 'nullable|numeric',
         'calc_type'     => 'nullable|int|in:0,1',
@@ -118,6 +126,7 @@ final class UpdateMetricCommand
      * @param string                         $name
      * @param string                         $suffix
      * @param string                         $description
+     * @param string                         $internal_link
      * @param float                          $default_value
      * @param int                            $calc_type
      * @param int                            $display_chart
@@ -128,12 +137,13 @@ final class UpdateMetricCommand
      *
      * @return void
      */
-    public function __construct(Metric $metric, $name, $suffix, $description, $default_value, $calc_type, $display_chart, $places, $default_view, $threshold, $order = null)
+    public function __construct(Metric $metric, $name, $suffix, $description, $internal_link, $default_value, $calc_type, $display_chart, $places, $default_view, $threshold, $order = null)
     {
         $this->metric = $metric;
         $this->name = $name;
         $this->suffix = $suffix;
         $this->description = $description;
+        $this->internal_link = $internal_link;
         $this->default_value = $default_value;
         $this->calc_type = $calc_type;
         $this->display_chart = $display_chart;

@@ -48,6 +48,7 @@ class UpdateMetricCommandHandler
             'name'          => $command->name,
             'suffix'        => $command->suffix,
             'description'   => $command->description,
+            'internal_link' => $command->internal_link,
             'default_value' => $command->default_value,
             'calc_type'     => $command->calc_type,
             'display_chart' => $command->display_chart,

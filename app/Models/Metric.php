@@ -43,6 +43,7 @@ class Metric extends Model implements HasPresenter
      */
     protected $attributes = [
         'name'          => '',
+        'internal_link' => '',
         'display_chart' => 1,
         'default_value' => 0,
         'calc_type'     => 0,
@@ -59,6 +60,7 @@ class Metric extends Model implements HasPresenter
      */
     protected $casts = [
         'name'          => 'string',
+        'internal_link' => 'string',
         'display_chart' => 'bool',
         'default_value' => 'int',
         'calc_type'     => 'int',
@@ -77,6 +79,7 @@ class Metric extends Model implements HasPresenter
         'name',
         'suffix',
         'description',
+        'internal_link',
         'display_chart',
         'default_value',
         'calc_type',
@@ -94,6 +97,7 @@ class Metric extends Model implements HasPresenter
     public $rules = [
         'name'          => 'required',
         'suffix'        => 'required',
+        'internal_link' => 'nullable|url',
         'display_chart' => 'required|bool',
         'default_value' => 'required|numeric',
         'places'        => 'required|numeric|between:0,4',

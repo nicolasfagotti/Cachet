@@ -51,6 +51,13 @@ final class UpdateComponentCommand
     public $link;
 
     /**
+     * The component internal link.
+     *
+     * @var string
+     */
+    public $internal_link;
+
+    /**
      * The component order.
      *
      * @var int
@@ -81,6 +88,7 @@ final class UpdateComponentCommand
         'description' => 'nullable|string',
         'status'      => 'nullable|int|min:0|max:4',
         'link'        => 'nullable|url',
+        'internal_link' => 'nullable|url',
         'order'       => 'nullable|int',
         'group_id'    => 'nullable|int',
         'enabled'     => 'nullable|bool',
@@ -94,19 +102,21 @@ final class UpdateComponentCommand
      * @param string                            $description
      * @param int                               $status
      * @param string                            $link
+     * @param string                            $internal_link
      * @param int                               $order
      * @param int                               $group_id
      * @param bool                              $enabled
      *
      * @return void
      */
-    public function __construct(Component $component, $name, $description, $status, $link, $order, $group_id, $enabled)
+    public function __construct(Component $component, $name, $description, $status, $link, $internal_link, $order, $group_id, $enabled)
     {
         $this->component = $component;
         $this->name = $name;
         $this->description = $description;
         $this->status = (int) $status;
         $this->link = $link;
+        $this->internal_link = $internal_link;
         $this->order = $order;
         $this->group_id = $group_id;
         $this->enabled = $enabled;
