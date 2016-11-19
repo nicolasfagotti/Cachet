@@ -33,7 +33,9 @@
                     </div>
                     <div class="form-group">
                         <label>{{ trans('forms.metrics.internal_link') }}</label>
-                        <input type="text" name="internal_link" class="form-control" value="{{ $metric->internal_link }}" placeholder="{{ trans('forms.metrics.internal_link') }}">
+                        <i class="ion ion-ios-help-outline help-icon" data-toggle="tooltip" data-title="{{ trans('forms.metrics.int_link_help') }}" data-container="body" data-html="true"></i>
+                        <span class="pull-right"><a href="http://172.18.7.66/atlas" target="_blank">Launch Atlas Query Editor</a></span>
+                        <input type="text" name="metric[internal_link]" class="form-control" value="{{ Binput::old('metric.internal_link') }}" placeholder="{{ trans('forms.metrics.internal_link') }}">
                     </div>
                     <div class="form-group">
                         <label>{{ trans('forms.metrics.calc_type') }}</label>
