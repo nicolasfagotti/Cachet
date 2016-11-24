@@ -73,6 +73,28 @@ class ComponentPresenter extends BasePresenter implements Arrayable
     }
 
     /**
+     * Present the Atlas Query Editor link based on the internal link field.
+     *
+     * @return string
+     */
+    public function atlas_query_editor_link()
+    {
+        $atlasQueryEditorHost = 'http://atlas-query-editor.' . Config::get('agora.env') . '.agora.odesk.com';
+
+        if (filter_var($this->wrappedObject->internal_link, FILTER_VALIDATE_URL) !== false) {
+            $urlParts = parse_url($this->wrappedObject->internal_link);
+            $linkQuery = isset($urlParts['query']) ? $urlParts['query'] : '';
+            $atlasHostAPI = preg_replace('/\?.*/', '', $this->wrappedObject->internal_link);
+            $atlasHostAPI = preg_replace('/\/graph$/', '', $atlasHostAPI);
+        } else {
+            $linkQuery = '';
+            $atlasHostAPI = 'http://atlas.' . Config::get('agora.env') . '.agora.odesk.com:7101/api/v1';
+        }
+
+        return $atlasQueryEditorHost . '#?' . $linkQuery . '&host=' . $atlasHostAPI;
+    }
+
+    /**
      * Convert the presenter instance to an array.
      *
      * @return string[]

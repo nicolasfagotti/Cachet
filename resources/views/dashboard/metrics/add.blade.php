@@ -34,7 +34,7 @@
                     <div class="form-group">
                         <label>{{ trans('forms.metrics.internal_link') }}</label>
                         <i class="ion ion-ios-help-outline help-icon" data-toggle="tooltip" data-title="{{ trans('forms.metrics.int_link_help') }}" data-container="body" data-html="true"></i>
-                        <span class="pull-right"><a href="http://172.18.7.66/atlas" target="_blank">Launch Atlas Query Editor</a></span>
+                        <span class="pull-right"><a href="http://atlas-query-editor.{{ Config::get('agora.env') }}.agora.odesk.com/#?q=&host=http:%2F%2Fatlas.{{ Config::get('agora.env') }}.agora.odesk.com:7101%2Fapi%2Fv1" target="_blank">{{ trans('forms.metrics.aqe_launch_link') }}</a></span>
                         <input type="text" name="metric[internal_link]" class="form-control" value="{{ Binput::old('metric.internal_link') }}" placeholder="{{ trans('forms.metrics.internal_link') }}">
                     </div>
                     <div class="form-group">
