@@ -68,13 +68,14 @@ class MetricController extends Controller
     public function createMetricAction()
     {
         $metricData = Binput::get('metric');
+        $plainMetricData = Binput::get('metric', null, true, false);
 
         try {
             dispatch(new AddMetricCommand(
                 $metricData['name'],
                 $metricData['suffix'],
                 $metricData['description'],
-                $metricData['internal_link'],
+                $plainMetricData['internal_link'],
                 $metricData['default_value'],
                 $metricData['calc_type'],
                 $metricData['display_chart'],
@@ -148,7 +149,7 @@ class MetricController extends Controller
                 Binput::get('name', null, false),
                 Binput::get('suffix', null, false),
                 Binput::get('description', null, false),
-                Binput::get('internal_link', null, false),
+                Binput::get('internal_link', null, true, false),
                 Binput::get('default_value', null, false),
                 Binput::get('calc_type', null, false),
                 Binput::get('display_chart', null, false),

@@ -12,6 +12,7 @@
 namespace CachetHQ\Cachet\Http\Controllers\Dashboard;
 
 use AltThree\Validator\ValidationException;
+use BaconQrCode\Renderer\Text\Html;
 use CachetHQ\Cachet\Bus\Commands\Component\AddComponentCommand;
 use CachetHQ\Cachet\Bus\Commands\Component\RemoveComponentCommand;
 use CachetHQ\Cachet\Bus\Commands\Component\UpdateComponentCommand;
@@ -123,6 +124,7 @@ class ComponentController extends Controller
     public function updateComponentAction(Component $component)
     {
         $componentData = Binput::get('component');
+        $plainComponentData = Binput::get('component', null, true, false);
         $tags = array_pull($componentData, 'tags');
 
         try {
@@ -132,7 +134,7 @@ class ComponentController extends Controller
                 $componentData['description'],
                 $componentData['status'],
                 $componentData['link'],
-                $componentData['internal_link'],
+                $plainComponentData['internal_link'],
                 $componentData['order'],
                 $componentData['group_id'],
                 $componentData['enabled']
@@ -178,6 +180,7 @@ class ComponentController extends Controller
     public function createComponentAction()
     {
         $componentData = Binput::get('component');
+        $plainComponentData = Binput::get('component', null, true, false);
         $tags = array_pull($componentData, 'tags');
 
         try {
@@ -186,7 +189,7 @@ class ComponentController extends Controller
                 $componentData['description'],
                 $componentData['status'],
                 $componentData['link'],
-                $componentData['internal_link'],
+                $plainComponentData['internal_link'],
                 $componentData['order'],
                 $componentData['group_id'],
                 $componentData['enabled']
