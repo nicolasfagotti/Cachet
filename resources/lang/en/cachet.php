@@ -79,8 +79,9 @@ return [
     // Status Transitions
     'status_transitions' => [
         'transition_chart' => [
-            'title'   => 'Status Transitions',
-            'tooltip' => [
+            'title'           => 'Status Transitions',
+            'component_title' => 'Status Transitions Per Component',
+            'tooltip'         => [
                 'from_date'  => 'From Date',
                 'to_date'    => 'To Date',
                 'duration'   => 'Duration',

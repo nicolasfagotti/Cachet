@@ -444,8 +444,8 @@ body.status-page {
         margin-top: 10px;
         color: $cachet-gray-darker;
 
-        .transition-chart {
-            padding: 2rem;
+        .transition-chart,
+        .transition-component-chart {
 
             .chart-title {
                 font-size: 0.85em;
@@ -468,6 +468,14 @@ body.status-page {
                     padding: 0;
                 }
             }
+        }
+
+        .transition-chart {
+            padding: 2rem;
+        }
+
+        .transition-component-chart {
+            padding: 0.05rem 2rem;
         }
 
         .chart-pager {

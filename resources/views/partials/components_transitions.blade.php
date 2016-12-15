@@ -1,6 +1,11 @@
 <ul class="list-group">
     <li class="list-group-item">
         <div class="historical-charts" id="component-status-container" data-status-component-id="{{ $component->id }}">
+            @if($component_group_selected)
+            @foreach($component_group_selected->enabled_components()->orderBy('order')->get() as $component)
+            <div id="group-status-table-{{ $component->id }}"></div>
+            @endforeach
+            @endif
             <div id="component-status-table"></div>
             <hr/>
             <canvas id="component-status-bar" height="128"></canvas>
@@ -53,7 +58,7 @@
             @if($component_group_selected)
             var baseRestUrl = '/status/transitions/group/',
                 isGroup = true;
-            @elseif ($component_selected)
+            @elseif($component_selected)
             var baseRestUrl = '/status/transitions/component/',
                 isGroup = false;
             @endif
@@ -159,7 +164,7 @@
                     }
                 });
 
-                // 3. Create Transitions Table:
+                // 3. Create Transitions Table.
                 document.getElementById("component-status-table").innerHTML = asTable(durations, days);
                 $("#component-status-table").find('[data-toggle="popover"]').popover({
                     container: 'body',
@@ -167,6 +172,29 @@
                     placement: 'top'
                 });
             });
+
+            @if($component_group_selected)
+            @foreach($component_group_selected->enabled_components()->orderBy('order')->get() as $index => $component)
+            $.getJSON('/status/transitions/component/{{  $component->id }}', {
+                from: fromDate,
+                to: toDate
+            }).done(function (result) {
+
+                // 1. Convert to durations.
+                var durations = asDurations(result, days);
+                var displayTitle = {{ $index }} === 0 ? true : false;
+
+                // 3. Create Group Table.
+                document.getElementById("group-status-table-{{ $component->id }}").innerHTML = groupAsTable(durations, days, '{{ $component->name }}', displayTitle);
+                $("#group-status-table-{{ $component->id }}").find('[data-toggle="popover"]').popover({
+                    container: 'body',
+                    trigger: 'focus hover',
+                    placement: 'top'
+                });
+
+            });
+            @endforeach
+            @endif
 
             function asDurations(data, days) {
                 var result,
@@ -350,8 +378,83 @@
                 return result;
             }
 
+            function groupAsTable(durations, days, componentName, displayTitle) {
+
+                var templateText, tableTemplate, statusText = getStatusTransitionConfigurations();
+
+                templateText = '<div class="transition-component-chart">';
+                templateText += displayTitle ? '<p class="chart-title">{{ trans("cachet.status_transitions.transition_chart.component_title") }}</p>' : '';
+                templateText +=
+                        '    <% _.forEach(data, function(row) { %>' +
+                        '    <div>' +
+                        '        <div class="pull-left legend-column">'+
+                        '        <small title="' + componentName +'">' + componentName.substr(0, 8) + (componentName.length > 8 ? '&hellip;' : '') + '</small>'+
+                        '    </div>' +
+                        '    <div class="progress">' +
+                        '        <% _.forEach(row.durations, function(d) { %>' +
+                        '        <div class="progress-bar" style="width: <%- d.width * 100 %>%; background-color:<%- d.backgroundColor %>">' +
+                        '            <label data-toggle="popover" data-content="<%- d.text %>" data-html="true">' +
+                        '                <input class="sr-only" type="radio" name="status">' +
+                        '            </label>' +
+                        '        </div>' +
+                        '        <% }); %>' +
+                        '    </div>' +
+                        '    <% }); %>' +
+                        '</div>';
+                tableTemplate = _.template(templateText);
+
+                // 1. Group By Day
+                var templateData = [],
+                    groupingPeriod = 192,
+                    groupedDurations = groupDurations(durations, groupingPeriod);
+
+                // 2. Map to templateData
+                _.forEach(groupedDurations, function(durations, group) {
+                    var fromDate = days[0].clone().add(group * groupingPeriod, 'hours'),
+                        toDate = fromDate.clone().add(groupingPeriod, 'hours'),
+                        groupData = _.chain(durations)
+                            .filter(function(d) {
+                                return d.duration > 0;
+                            })
+                            .map(function(d) {
+                                var text =
+                                        '<div class="transition-tooltip">' +
+                                        '   <div class="status-title clearfix">' +
+                                        '       <i class="pull-right ion ion-ios-circle-filled ' + statusText[d.status].statusClass + '"></i>' +
+                                        '       <span class="' + statusText[d.status].statusClass + '">' + statusText[d.status].label + '</span>' +
+                                        '   </div>' +
+                                        '   <dl>' +
+                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.from_date") }}</dt><dd>'+ d.fromDate.toISOString() + '</dd>' +
+                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.to_date") }}</dt><dd>' + d.toDate.toISOString() + '</dd>' +
+                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.duration") }}</dt><dd>' + humanizeDuration(d.duration) + '</dd>' +
+                                        '   </dl>' +
+                                        '</div>';
+
+                                return {
+                                    width: d.percentageInGroup,
+                                    backgroundColor: statusText[d.status].backgroundColor,
+                                    text: text
+                                };
+                            })
+                            .value();
+
+                    templateData.push({
+                        startDate: fromDate.format('YYYY-MM-DD'),
+                        endDate: toDate.format('YYYY-MM-DD'),
+                        durations: groupData
+                    });
+                });
+
+                return tableTemplate({
+                    data: templateData
+                });
+            }
+
             function asTable(durations, days) {
-                var tableTemplate = _.template(
+
+                var tableTemplate, statusText = getStatusTransitionConfigurations();
+
+                tableTemplate = _.template(
                         '<div class="transition-chart">' +
                         '    <p class="chart-title">{{ trans("cachet.status_transitions.transition_chart.title") }}</p>' +
                         '    <% _.forEach(data, function(row) { %>' +
@@ -373,32 +476,6 @@
                         '</div>'
                 );
 
-                var statusText = [{
-                    label: 'Unknown',
-                    backgroundColor: 'rgba(136, 136, 136, 0.5)',
-                    statusClass: 'greys'
-                },
-                {
-                    label: 'Operational',
-                    backgroundColor: 'rgba(126, 211, 33, 0.5)',
-                    statusClass: 'greens'
-                },
-                {
-                    label: 'Performance Issues',
-                    backgroundColor: 'rgba(52, 152, 219, 0.5)',
-                    statusClass: 'blues'
-                },
-                {
-                    label: 'Partial Outage',
-                    backgroundColor: 'rgba(247, 202, 24, 0.5)',
-                    statusClass: 'yellows'
-                },
-                {
-                    label: 'Major Outage',
-                    backgroundColor: 'rgba(255, 111, 111, 0.5)',
-                    statusClass: 'reds'
-                }];
-
                 // 1. Group By Day
                 var templateData = [],
                     groupingPeriod = 24,
@@ -413,15 +490,16 @@
                                 return d.duration > 0;
                             })
                             .map(function(d) {
-                                var text = '<div class="transition-tooltip">' +
-                                        '<div class="status-title clearfix">' +
-                                            '<i class="pull-right ion ion-ios-circle-filled ' + statusText[d.status].statusClass + '"></i>' +
-                                            '<span class="' + statusText[d.status].statusClass + '">' + statusText[d.status].label + '</span>' +
-                                        '</div>' +
-                                        '<dl>' +
-                                            '<dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.from_date") }}</dt><dd>'+ d.fromDate.toISOString() + '</dd>' +
-                                            '<dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.to_date") }}</dt><dd>' + d.toDate.toISOString() + '</dd>' +
-                                            '<dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.duration") }}</dt><dd>' + humanizeDuration(d.duration) + '</dd>';
+                                var text =
+                                        '<div class="transition-tooltip">' +
+                                        '   <div class="status-title clearfix">' +
+                                        '       <i class="pull-right ion ion-ios-circle-filled ' + statusText[d.status].statusClass + '"></i>' +
+                                        '       <span class="' + statusText[d.status].statusClass + '">' + statusText[d.status].label + '</span>' +
+                                        '   </div>' +
+                                        '   <dl>' +
+                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.from_date") }}</dt><dd>'+ d.fromDate.toISOString() + '</dd>' +
+                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.to_date") }}</dt><dd>' + d.toDate.toISOString() + '</dd>' +
+                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.duration") }}</dt><dd>' + humanizeDuration(d.duration) + '</dd>';
 
                                 if (isGroup && d.offendingComponents.length > 0) {
                                     text += '<dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.components") }}</dt><dd><ul>';
@@ -462,6 +540,31 @@
                     seconds = Math.floor(((duration - hours) * 60 - minutes) * 60);
 
                 return hours + ' hours, ' + minutes + ' minutes, ' + seconds + ' seconds';
+            }
+
+            function getStatusTransitionConfigurations() {
+
+                return [{
+                    label: 'Unknown',
+                    backgroundColor: 'rgba(136, 136, 136, 0.5)',
+                    statusClass: 'greys'
+                }, {
+                    label: 'Operational',
+                    backgroundColor: 'rgba(126, 211, 33, 0.5)',
+                    statusClass: 'greens'
+                }, {
+                    label: 'Performance Issues',
+                    backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                    statusClass: 'blues'
+                }, {
+                    label: 'Partial Outage',
+                    backgroundColor: 'rgba(247, 202, 24, 0.5)',
+                    statusClass: 'yellows'
+                }, {
+                    label: 'Major Outage',
+                    backgroundColor: 'rgba(255, 111, 111, 0.5)',
+                    statusClass: 'reds'
+                }];
             }
         }
     }());
