@@ -399,6 +399,7 @@
                         '        </div>' +
                         '        <% }); %>' +
                         '    </div>' +
+                        '    <div class="clearfix"></div>' +
                         '    <% }); %>' +
                         '</div>';
                 tableTemplate = _.template(templateText);
