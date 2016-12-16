@@ -1,14 +1,15 @@
 <ul class="list-group">
     <li class="list-group-item">
         <div class="historical-charts" id="component-status-container" data-status-component-id="{{ $component->id }}">
+            <div id="component-status-table"></div>
+            <hr />
+            <canvas id="component-status-bar" height="128"></canvas>
+            <hr />
             @if($component_group_selected)
             @foreach($component_group_selected->enabled_components()->orderBy('order')->get() as $component)
             <div id="group-status-table-{{ $component->id }}"></div>
             @endforeach
             @endif
-            <div id="component-status-table"></div>
-            <hr/>
-            <canvas id="component-status-bar" height="128"></canvas>
             <div class="clearfix chart-pager">
                 <a href="javascript: updateChart('prev');" class="pull-left">
                     <span aria-hidden="true">&laquo;</span>
@@ -165,12 +166,13 @@
                 });
 
                 // 3. Create Transitions Table.
-                document.getElementById("component-status-table").innerHTML = asTable(durations, days);
-                $("#component-status-table").find('[data-toggle="popover"]').popover({
-                    container: 'body',
-                    trigger: 'focus hover',
-                    placement: 'top'
-                });
+                new StatusTransitionChart({
+                    groupingPeriod: 24, // Data grouped by day
+                    elementId: 'component-status-table',
+                    mainClass: 'transition-chart',
+                    title: '{{ trans("cachet.status_transitions.transition_chart.title") }}',
+                    displayOffendingComponents: true
+                }).drawChart(durations, days);
             });
 
             @if($component_group_selected)
@@ -182,16 +184,15 @@
 
                 // 1. Convert to durations.
                 var durations = asDurations(result, days);
-                var displayTitle = {{ $index }} === 0 ? true : false;
 
-                // 3. Create Group Table.
-                document.getElementById("group-status-table-{{ $component->id }}").innerHTML = groupAsTable(durations, days, '{{ $component->name }}', displayTitle);
-                $("#group-status-table-{{ $component->id }}").find('[data-toggle="popover"]').popover({
-                    container: 'body',
-                    trigger: 'focus hover',
-                    placement: 'top'
-                });
-
+                // 2. Create Transitions Table.
+                new StatusTransitionChart({
+                    groupingPeriod: 192, // Data grouped by week
+                    elementId: 'group-status-table-{{ $component->id }}',
+                    mainClass: 'transition-component-chart',
+                    title: {{ $index }} === 0 ? '{{ trans("cachet.status_transitions.transition_chart.component_title") }}' : null,
+                    fixedLabel: '{{ $component->name }}'
+                }).drawChart(durations, days);
             });
             @endforeach
             @endif
@@ -378,159 +379,6 @@
                 return result;
             }
 
-            function groupAsTable(durations, days, componentName, displayTitle) {
-
-                var templateText, tableTemplate, statusText = getStatusTransitionConfigurations();
-
-                templateText = '<div class="transition-component-chart">';
-                templateText += displayTitle ? '<p class="chart-title">{{ trans("cachet.status_transitions.transition_chart.component_title") }}</p>' : '';
-                templateText +=
-                        '    <% _.forEach(data, function(row) { %>' +
-                        '    <div>' +
-                        '        <div class="pull-left legend-column">'+
-                        '        <small title="' + componentName +'">' + componentName.substr(0, 8) + (componentName.length > 8 ? '&hellip;' : '') + '</small>'+
-                        '    </div>' +
-                        '    <div class="progress">' +
-                        '        <% _.forEach(row.durations, function(d) { %>' +
-                        '        <div class="progress-bar" style="width: <%- d.width * 100 %>%; background-color:<%- d.backgroundColor %>">' +
-                        '            <label data-toggle="popover" data-content="<%- d.text %>" data-html="true">' +
-                        '                <input class="sr-only" type="radio" name="status">' +
-                        '            </label>' +
-                        '        </div>' +
-                        '        <% }); %>' +
-                        '    </div>' +
-                        '    <div class="clearfix"></div>' +
-                        '    <% }); %>' +
-                        '</div>';
-                tableTemplate = _.template(templateText);
-
-                // 1. Group By Day
-                var templateData = [],
-                    groupingPeriod = 192,
-                    groupedDurations = groupDurations(durations, groupingPeriod);
-
-                // 2. Map to templateData
-                _.forEach(groupedDurations, function(durations, group) {
-                    var fromDate = days[0].clone().add(group * groupingPeriod, 'hours'),
-                        toDate = fromDate.clone().add(groupingPeriod, 'hours'),
-                        groupData = _.chain(durations)
-                            .filter(function(d) {
-                                return d.duration > 0;
-                            })
-                            .map(function(d) {
-                                var text =
-                                        '<div class="transition-tooltip">' +
-                                        '   <div class="status-title clearfix">' +
-                                        '       <i class="pull-right ion ion-ios-circle-filled ' + statusText[d.status].statusClass + '"></i>' +
-                                        '       <span class="' + statusText[d.status].statusClass + '">' + statusText[d.status].label + '</span>' +
-                                        '   </div>' +
-                                        '   <dl>' +
-                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.from_date") }}</dt><dd>'+ d.fromDate.toISOString() + '</dd>' +
-                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.to_date") }}</dt><dd>' + d.toDate.toISOString() + '</dd>' +
-                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.duration") }}</dt><dd>' + humanizeDuration(d.duration) + '</dd>' +
-                                        '   </dl>' +
-                                        '</div>';
-
-                                return {
-                                    width: d.percentageInGroup,
-                                    backgroundColor: statusText[d.status].backgroundColor,
-                                    text: text
-                                };
-                            })
-                            .value();
-
-                    templateData.push({
-                        startDate: fromDate.format('YYYY-MM-DD'),
-                        endDate: toDate.format('YYYY-MM-DD'),
-                        durations: groupData
-                    });
-                });
-
-                return tableTemplate({
-                    data: templateData
-                });
-            }
-
-            function asTable(durations, days) {
-
-                var tableTemplate, statusText = getStatusTransitionConfigurations();
-
-                tableTemplate = _.template(
-                        '<div class="transition-chart">' +
-                        '    <p class="chart-title">{{ trans("cachet.status_transitions.transition_chart.title") }}</p>' +
-                        '    <% _.forEach(data, function(row) { %>' +
-                        '    <div>' +
-                        '        <div class="pull-left legend-column">'+
-                        '        <small><%- row.startDate %></small>'+
-                        '    </div>' +
-                        '    <div class="progress">' +
-                        '        <% _.forEach(row.durations, function(d) { %>' +
-                        '        <div class="progress-bar" style="width: <%- d.width * 100 %>%; background-color:<%- d.backgroundColor %>">' +
-                        '            <label data-toggle="popover" data-content="<%- d.text %>" data-html="true">' +
-                        '                <input class="sr-only" type="radio" name="status">' +
-                        '            </label>' +
-                        '        </div>' +
-                        '        <% }); %>' +
-                        '    </div>' +
-                        '    <div class="clearfix"></div>' +
-                        '    <% }); %>' +
-                        '</div>'
-                );
-
-                // 1. Group By Day
-                var templateData = [],
-                    groupingPeriod = 24,
-                    groupedDurations = groupDurations(durations, groupingPeriod);
-
-                // 2. Map to templateData
-                _.forEach(groupedDurations, function(durations, group) {
-                    var fromDate = days[0].clone().add(group * groupingPeriod, 'hours'),
-                        toDate = fromDate.clone().add(groupingPeriod, 'hours'),
-                        groupData = _.chain(durations)
-                            .filter(function(d) {
-                                return d.duration > 0;
-                            })
-                            .map(function(d) {
-                                var text =
-                                        '<div class="transition-tooltip">' +
-                                        '   <div class="status-title clearfix">' +
-                                        '       <i class="pull-right ion ion-ios-circle-filled ' + statusText[d.status].statusClass + '"></i>' +
-                                        '       <span class="' + statusText[d.status].statusClass + '">' + statusText[d.status].label + '</span>' +
-                                        '   </div>' +
-                                        '   <dl>' +
-                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.from_date") }}</dt><dd>'+ d.fromDate.toISOString() + '</dd>' +
-                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.to_date") }}</dt><dd>' + d.toDate.toISOString() + '</dd>' +
-                                        '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.duration") }}</dt><dd>' + humanizeDuration(d.duration) + '</dd>';
-
-                                if (isGroup && d.offendingComponents.length > 0) {
-                                    text += '<dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.components") }}</dt><dd><ul>';
-                                    for (var i = 0; i < d.offendingComponents.length; i++) {
-                                        text += '<li>' + d.offendingComponents[i]['name'] + ': ' + d.offendingComponents[i]['status'] + '</li>';
-                                    }
-                                    text += '</ul></dd>';
-                                }
-                                text += '</dl></div>';
-
-                                return {
-                                    width: d.percentageInGroup,
-                                    backgroundColor: statusText[d.status].backgroundColor,
-                                    text: text
-                                };
-                            })
-                            .value();
-
-                    templateData.push({
-                        startDate: fromDate.format('YYYY-MM-DD'),
-                        endDate: toDate.format('YYYY-MM-DD'),
-                        durations: groupData
-                    });
-                });
-
-                return tableTemplate({
-                    data: templateData
-                });
-            }
-
             function formatNumber(num) {
                 return (num.toFixed(1) * 1).toString();
             }
@@ -543,30 +391,124 @@
                 return hours + ' hours, ' + minutes + ' minutes, ' + seconds + ' seconds';
             }
 
-            function getStatusTransitionConfigurations() {
+            // Status Transition Chart
+            var StatusTransitionChart = function (options) {
+                var chartGroupingPeriod = options.groupingPeriod ? options.groupingPeriod : 24,
+                    chartElementId = options.elementId ? options.elementId : null,
+                    chartMainClass = options.mainClass ? options.mainClass  : '',
+                    chartTitle = options.title ? options.title : null,
+                    chartDisplayOffendingComponents = options.displayOffendingComponents ? options.displayOffendingComponents : false,
+                    chartFixedLabel = options.fixedLabel ? options.fixedLabel : false;
 
-                return [{
-                    label: 'Unknown',
-                    backgroundColor: 'rgba(136, 136, 136, 0.5)',
-                    statusClass: 'greys'
-                }, {
-                    label: 'Operational',
-                    backgroundColor: 'rgba(126, 211, 33, 0.5)',
-                    statusClass: 'greens'
-                }, {
-                    label: 'Performance Issues',
-                    backgroundColor: 'rgba(52, 152, 219, 0.5)',
-                    statusClass: 'blues'
-                }, {
-                    label: 'Partial Outage',
-                    backgroundColor: 'rgba(247, 202, 24, 0.5)',
-                    statusClass: 'yellows'
-                }, {
-                    label: 'Major Outage',
-                    backgroundColor: 'rgba(255, 111, 111, 0.5)',
-                    statusClass: 'reds'
-                }];
-            }
+                return {
+                    getLabels: function () {
+                        return [{
+                            label: 'Unknown',
+                            backgroundColor: 'rgba(136, 136, 136, 0.5)',
+                            statusClass: 'greys'
+                        }, {
+                            label: 'Operational',
+                            backgroundColor: 'rgba(126, 211, 33, 0.5)',
+                            statusClass: 'greens'
+                        }, {
+                            label: 'Performance Issues',
+                            backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                            statusClass: 'blues'
+                        }, {
+                            label: 'Partial Outage',
+                            backgroundColor: 'rgba(247, 202, 24, 0.5)',
+                            statusClass: 'yellows'
+                        }, {
+                            label: 'Major Outage',
+                            backgroundColor: 'rgba(255, 111, 111, 0.5)',
+                            statusClass: 'reds'
+                        }];
+                    },
+
+                    getTemplate: function () {
+                        var templateText = '<div class="' + chartMainClass + '">';
+                        templateText += chartTitle ? '<p class="chart-title">' + chartTitle + '</p>' : '';
+                        templateText +=
+                                '    <% _.forEach(data, function(row) { %>' +
+                                '    <div>' +
+                                '        <div class="pull-left legend-column">' +
+                                '        <small title="<%- row.label %>"><%- row.label %></small>' +
+                                '    </div>' +
+                                '    <div class="progress">' +
+                                '        <% _.forEach(row.durations, function(d) { %>' +
+                                '        <div class="progress-bar" style="width: <%- d.width * 100 %>%; background-color:<%- d.backgroundColor %>">' +
+                                '            <label data-toggle="popover" data-content="<%- d.text %>" data-html="true">' +
+                                '                <input class="sr-only" type="radio" name="status">' +
+                                '            </label>' +
+                                '        </div>' +
+                                '        <% }); %>' +
+                                '    </div>' +
+                                '    <div class="clearfix"></div>' +
+                                '    <% }); %>' +
+                                '</div>';
+                        return _.template(templateText);
+                    },
+
+                    drawChart: function (durations, days) {
+                        var templateData = [],
+                            statusText = this.getLabels(),
+                            tableTemplate = this.getTemplate(),
+                            groupedDurations = groupDurations(durations, chartGroupingPeriod);
+
+                        _.forEach(groupedDurations, function(durations, group) {
+                            var fromDate = days[0].clone().add(group * chartGroupingPeriod, 'hours'),
+                                toDate = fromDate.clone().add(chartGroupingPeriod, 'hours'),
+                                groupData = _.chain(durations)
+                                        .filter(function(d) {
+                                            return d.duration > 0;
+                                        })
+                                        .map(function(d) {
+                                            var text =
+                                                    '<div class="transition-tooltip">' +
+                                                    '   <div class="status-title clearfix">' +
+                                                    '       <i class="pull-right ion ion-ios-circle-filled ' + statusText[d.status].statusClass + '"></i>' +
+                                                    '       <span class="' + statusText[d.status].statusClass + '">' + statusText[d.status].label + '</span>' +
+                                                    '   </div>' +
+                                                    '   <dl>' +
+                                                    '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.from_date") }}</dt><dd>'+ d.fromDate.toISOString() + '</dd>' +
+                                                    '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.to_date") }}</dt><dd>' + d.toDate.toISOString() + '</dd>' +
+                                                    '       <dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.duration") }}</dt><dd>' + humanizeDuration(d.duration) + '</dd>';
+
+                                            if (chartDisplayOffendingComponents && d.offendingComponents.length > 0) {
+                                                text += '<dt>{{ trans("cachet.status_transitions.transition_chart.tooltip.components") }}</dt><dd><ul>';
+                                                for (var i = 0; i < d.offendingComponents.length; i++) {
+                                                    text += '<li>' + d.offendingComponents[i]['name'] + ': ' + d.offendingComponents[i]['status'] + '</li>';
+                                                }
+                                                text += '</ul></dd>';
+                                            }
+                                            text += '</dl></div>';
+
+                                            return {
+                                                width: d.percentageInGroup,
+                                                backgroundColor: statusText[d.status].backgroundColor,
+                                                text: text
+                                            };
+                                        })
+                                        .value();
+
+                            templateData.push({
+                                label: chartFixedLabel ? chartFixedLabel : fromDate.format('YYYY-MM-DD'),
+                                startDate: fromDate.format('YYYY-MM-DD'),
+                                endDate: toDate.format('YYYY-MM-DD'),
+                                durations: groupData
+                            });
+                        });
+
+                        // Insert the chart
+                        document.getElementById(chartElementId).innerHTML = tableTemplate({ data: templateData });
+                        $(chartElementId).find('[data-toggle="popover"]').popover({
+                            container: 'body',
+                            trigger: 'focus hover',
+                            placement: 'top'
+                        });
+                    }
+                }
+            };
         }
     }());
 </script>

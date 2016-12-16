@@ -455,7 +455,12 @@ body.status-page {
             }
 
             .legend-column {
-                width: 6em;
+                display: inline-block;
+                overflow: hidden;
+                text-align: right;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                padding-right: 8px;
             }
 
             .progress {
@@ -472,10 +477,22 @@ body.status-page {
 
         .transition-chart {
             padding: 2rem;
+
+            .legend-column {
+                width: 6em;
+            }
         }
 
         .transition-component-chart {
             padding: 0.01rem 2rem;
+
+            .legend-column {
+                width: 10em;
+            }
+
+            .chart-title {
+                margin-top: 20px;
+            }
         }
 
         .chart-pager {
