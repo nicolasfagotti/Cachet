@@ -501,7 +501,7 @@
 
                         // Insert the chart
                         document.getElementById(chartElementId).innerHTML = tableTemplate({ data: templateData });
-                        $(chartElementId).find('[data-toggle="popover"]').popover({
+                        $("#" + chartElementId).find('[data-toggle="popover"]').popover({
                             container: 'body',
                             trigger: 'focus hover',
                             placement: 'top'
