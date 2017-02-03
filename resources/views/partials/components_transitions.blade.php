@@ -6,7 +6,7 @@
             <canvas id="component-status-bar" height="128"></canvas>
             <hr />
             @if($component_group_selected)
-            @foreach($component_group_selected->enabled_components()->orderBy('order')->get() as $component)
+            @foreach($component_group_selected->enabled_components()->orderBy('name')->get() as $component)
             <div id="group-status-table-{{ $component->id }}"></div>
             @endforeach
             @endif
@@ -183,7 +183,7 @@
             });
 
             @if($component_group_selected)
-            @foreach($component_group_selected->enabled_components()->orderBy('order')->get() as $index => $component)
+            @foreach($component_group_selected->enabled_components()->orderBy('name')->get() as $index => $component)
             $.getJSON('/status/transitions/component/{{  $component->id }}', {
                 from: fromDate,
                 to: toDate
