@@ -456,11 +456,13 @@ body.status-page {
 
             .legend-column {
                 display: inline-block;
-                overflow: hidden;
-                text-align: right;
-                text-overflow: ellipsis;
+                position: absolute;
+                pointer-events: none;
                 white-space: nowrap;
+                padding-left: 8px;
                 padding-right: 8px;
+                text-shadow: 0 0 10px #FFFFFF;
+                font-weight: bold;
             }
 
             .progress {
@@ -477,18 +479,10 @@ body.status-page {
 
         .transition-chart {
             padding: 2rem;
-
-            .legend-column {
-                width: 6em;
-            }
         }
 
         .transition-component-chart {
             padding: 0.01rem 2rem;
-
-            .legend-column {
-                width: 10em;
-            }
 
             .chart-title {
                 margin-top: 20px;

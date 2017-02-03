@@ -139,6 +139,12 @@
                             }
                         },
                         tooltips: {
+                            xPadding: 12,
+                            yPadding: 12,
+                            titleMarginBottom: 12,
+                            bodyFontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                            titleFontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+                            bodySpacing: 10,
                             custom: function(tooltip) {
                                 // Check if tooltip and tooltip.body.
                                 if (!tooltip || !tooltip.body) {
@@ -157,7 +163,8 @@
                                     after: [],
                                     before: [],
                                     lines: [
-                                        dataset.label + ' (' + value + '%)'
+                                        dataset.label + ' (' + value + '%)',
+                                        humanizeDuration(dataset.dataDuration[index])
                                     ]
                                 }];
                             }
@@ -312,15 +319,18 @@
                             borderColor: 'rgba(136, 136, 136, 1)',
                             borderWidth: 1,
                             total : 0,
-                            data: []
+                            data: [],
+                            dataDuration: []
                         },
                         {
                             label: "Operational",
+                            hidden: true,
                             backgroundColor: 'rgba(126, 211, 33, 0.5)',
                             borderColor: 'rgba(126, 211, 33, 1)',
                             borderWidth: 1,
                             total : 0,
-                            data: []
+                            data: [],
+                            dataDuration: []
                         },
                         {
                             label: "Performance Issues",
@@ -328,7 +338,8 @@
                             borderColor: 'rgba(52, 152, 219, 1)',
                             borderWidth: 1,
                             total : 0,
-                            data: []
+                            data: [],
+                            dataDuration: []
                         },
                         {
                             label: "Partial Outage",
@@ -336,7 +347,8 @@
                             borderColor: 'rgba(247, 202, 24, 1)',
                             borderWidth: 1,
                             total : 0,
-                            data: []
+                            data: [],
+                            dataDuration: []
                         },
                         {
                             label: "Major Outage",
@@ -344,7 +356,8 @@
                             borderColor: 'rgba(255, 111, 111, 1)',
                             borderWidth: 1,
                             total : 0,
-                            data: []
+                            data: [],
+                            dataDuration: []
                         }
                     ]
                 };
@@ -353,6 +366,7 @@
                 // 2.1. Init with '0'
                 _.forEach(result.datasets, function(dataset) {
                     dataset.data = _.times(days.length, _.constant(0));
+                    dataset.dataDuration = _.times(days.length, _.constant(0));
                 });
 
                 // 2.2. Group Durations in 24 hours groups
@@ -366,6 +380,7 @@
                             percent = durationObj.percentageInGroup;
 
                         result.datasets[status].data[day] += percent * 100;
+                        result.datasets[status].dataDuration[day] += duration;
                         result.datasets[status].total += duration;
                         result.total += duration;
                     });
@@ -458,6 +473,9 @@
                         _.forEach(groupedDurations, function(durations, group) {
                             var fromDate = days[0].clone().add(group * chartGroupingPeriod, 'hours'),
                                 toDate = fromDate.clone().add(chartGroupingPeriod, 'hours'),
+                                originalPercentageSum = _.reduce(durations, function(sum, d) {
+                                    return sum + d.percentageInGroup;
+                                }, 0),
                                 groupData = _.chain(durations)
                                         .filter(function(d) {
                                             return d.duration > 0;
@@ -484,12 +502,22 @@
                                             text += '</dl></div>';
 
                                             return {
-                                                width: d.percentageInGroup,
+                                                width: Math.max(0.01, d.percentageInGroup),
                                                 backgroundColor: statusText[d.status].backgroundColor,
                                                 text: text
                                             };
                                         })
                                         .value();
+
+                            // Normalize due to Math.max in widths (minimum percentage)
+                            var percentageSum = _.reduce(groupData, function(sum, n) {
+                                return sum + n.width;
+                            }, 0);
+                            if (percentageSum > originalPercentageSum) {
+                                _.forEach(groupData, function(d) {
+                                    d.width = (d.width * originalPercentageSum) / percentageSum;
+                                });
+                            }
 
                             templateData.push({
                                 label: chartFixedLabel ? chartFixedLabel : fromDate.format('YYYY-MM-DD'),

@@ -12,7 +12,7 @@
 return [
     // Components
     'components' => [
-        'filter'       => 'Display component:',
+        'filter'       => 'Display group / component:',
         'last_updated' => 'Last updated :timestamp',
         'status'       => [
             0 => 'Unknown',
