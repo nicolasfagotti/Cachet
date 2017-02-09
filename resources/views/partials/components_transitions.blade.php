@@ -145,28 +145,14 @@
                             bodyFontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
                             titleFontFamily: "'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
                             bodySpacing: 10,
-                            custom: function(tooltip) {
-                                // Check if tooltip and tooltip.body.
-                                if (!tooltip || !tooltip.body) {
-                                    return;
+                            callbacks: {
+                                label: function(tooltipItems, data) {
+                                    var dataset = data.datasets[tooltipItems.datasetIndex];
+                                    return [
+                                        ' ' + dataset.label + ' (' + formatNumber(tooltipItems.yLabel) + ' %) ',
+                                        ' ' + humanizeDuration(dataset.dataDuration[tooltipItems.index])
+                                    ];
                                 }
-                                // Read data.
-                                var tooltipInstance = this,
-                                    data = tooltipInstance._data,
-                                    datasetIndex = tooltipInstance._active[0]._datasetIndex,
-                                    index = tooltipInstance._active[0]._index,
-                                    dataset = data.datasets[datasetIndex],
-                                    value = formatNumber(dataset.data[index]);
-
-                                // Set tooltip text.
-                                tooltip.body = [{
-                                    after: [],
-                                    before: [],
-                                    lines: [
-                                        dataset.label + ' (' + value + '%)',
-                                        humanizeDuration(dataset.dataDuration[index])
-                                    ]
-                                }];
                             }
                         }
                     }
